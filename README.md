@@ -5,19 +5,19 @@ SDA Project by Lynne Vogel, Mink van Maanen & Yifan Chen
 Requirements:
 * Python 3.11
 
-First, create a virtual environment.
+First, create a virtual environment:
 ```bash
 python3.11 -m venv venv
 ```
 
-Activate it using the appropriate command for your platform.
+Activate it using the appropriate command for your platform:
 ```bash
 bash venv/bin/activate      # linux
 venv/bin/Activate.ps1       # windows
 source venv/bin/activate    # mac
 ```
 
-Lastly install the required dependencies.
+Lastly install the required dependencies using `Make`, or alternatively:
 ```bash
 pip install -r requirements.txt
 ```
