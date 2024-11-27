@@ -1,7 +1,7 @@
 # Makefile
 
-# Default target: only install
-all: install
+# Default target
+all: compile install
 
 # Install dependencies from requirements.txt
 install:
