@@ -17,9 +17,20 @@ venv/bin/Activate.ps1       # windows
 source venv/bin/activate    # mac
 ```
 
-Lastly install the required dependencies using `Make`, or alternatively:
+Lastly install the required dependencies:
 ```bash
 pip install -r requirements.txt
+```
+
+To recompile depencencies, `pip-tools`, `pip-compile` and `Make` must be installed:
+```bash
+# install (only do this once)
+pip install pip-tools
+pip install pip-compile
+
+# compile
+Make
+
 ```
 
 ## Usage
