@@ -7,13 +7,13 @@ Requirements:
 
 First, create a virtual environment:
 ```bash
-python3.11 -m venv venv
+python3 -m venv venv
 ```
 
 Activate it using the appropriate command for your platform:
 ```bash
 bash venv/bin/activate      # linux
-venv/bin/Activate.ps1       # windows
+./venv/Scripts/Activate.bat   # windows
 source venv/bin/activate    # mac
 ```
 
@@ -22,11 +22,11 @@ Lastly install the required dependencies:
 pip install -r requirements.txt
 ```
 
-To recompile depencencies, `pip-tools`, `pip-compile` and `Make` must be installed:
+To recompile depencencies, `pip-tools`, `pipreqs` and `Make` must be installed:
 ```bash
 # install (only do this once)
 pip install pip-tools
-pip install pip-compile
+pip install pipreqs
 
 # compile
 Make
