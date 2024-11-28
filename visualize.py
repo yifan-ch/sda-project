@@ -3,15 +3,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-class Data:
-    def __init__(self, path):
-        self.df = pd.read_csv(path).drop("name", axis=1)
+import data
 
-
-data = Data("data/parkinsons_data.csv")
+d = data.Data()
 # data = Data("data/test.csv")
 
-df = data.df
+df = d.df
 features = df.columns
 
 
