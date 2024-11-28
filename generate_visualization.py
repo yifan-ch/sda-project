@@ -1,8 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
-
 import data_model
+from pathlib import Path
+from env import RESULTS_VISUALIZATION_PATH
+
+# if path doesnt exist, create all missing folders
+Path(RESULTS_VISUALIZATION_PATH).mkdir(parents=True, exist_ok=True)
 
 data = data_model.data_mean
 
@@ -18,9 +21,10 @@ def plot(data, feature, k=30):
 
     plt.title(feature)
     plt.legend()
-    plt.savefig(f"results/visualization/{feature}")
+    plt.savefig(Path(RESULTS_VISUALIZATION_PATH) / feature)
     plt.clf()
 
 
-for f in data.features:
-    plot(data.filter_status(0), data.filter_status(1), f)
+if __name__ == "__main__":
+    for f in data.features:
+        plot(data.filter_status(0), data.filter_status(1), f)

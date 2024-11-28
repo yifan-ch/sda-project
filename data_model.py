@@ -21,5 +21,5 @@ class Data:
         print(df.to_string())
 
 
-data_all = Data(f"{DATA_PATH}/parkinsons_all")
-data_mean = Data(f"{DATA_PATH}/parkinsons_mean")
+data_raw = Data(f"{DATA_PATH}/generated/parkinsons_raw.csv")
+data_mean = Data(f"{DATA_PATH}/parkinsons_mean.csv")

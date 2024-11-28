@@ -1,7 +1,4 @@
-from dotenv import load_dotenv
-import os
-
-load_dotenv()
-
-DATA_PATH = os.getenv("DATA_PATH")
-RESULTS_PATH = os.getenv("RESULTS_PATH")
+DATA_PATH = "data"
+DATA_GENERATED_PATH = f"{DATA_PATH}/generated"
+RESULTS_PATH = "results"
+RESULTS_VISUALIZATION_PATH = f"{RESULTS_PATH}/visualization"
