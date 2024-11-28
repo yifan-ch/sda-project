@@ -1,2 +1,4 @@
 venv
 requirements.in
+*.png
+__pycache__

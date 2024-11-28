@@ -1,0 +1,4 @@
+DATA_PATH = "data"
+DATA_GENERATED_PATH = f"{DATA_PATH}/generated"
+RESULTS_PATH = "results"
+RESULTS_VISUALIZATION_PATH = f"{RESULTS_PATH}/visualization"
