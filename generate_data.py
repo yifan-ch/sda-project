@@ -19,6 +19,9 @@ def generate_data():
     # Create subject id and experiment number columns for easier indexing.
     df.insert(0, "experiment", np.tile(np.arange(0, 6), len(df) // 6))
     df.insert(0, "id", np.repeat(np.arange(0, len(df) // 6), 6))
+    # Add variables vocal range and relative pitch
+    df.insert(5, "vocal_range", df["MDVP:Fhi(Hz)"] - df["MDVP:Flo(Hz)"])
+    df.insert(6, "relative_avg_pitch", ((df["MDVP:Fo(Hz)"] - df["MDVP:Flo(Hz)"]) / (df["MDVP:Fhi(Hz)"] - df["MDVP:Flo(Hz)"])))
     write(df, "parkinsons_raw.csv")
 
     # Take the mean of the experiments
