@@ -8,10 +8,10 @@ from env import RESULTS_FEATURES_PATH
 Path(RESULTS_FEATURES_PATH).mkdir(parents=True, exist_ok=True)
 
 
-data = data_model.data_mean
+data = data_model.data_raw
 
 
-def plot_features(data, feature, k=30):
+def plot_features(data, feature, k=20):
     # skip meaningless stats
     if feature in ("id", "experiment", "status"):
         return
@@ -22,6 +22,7 @@ def plot_features(data, feature, k=30):
         [data.status_0[feature], data.status_1[feature]],
         bins=bins,
         label=["Healthy (status=0)", "Parkinson's patient (status=1)"],
+        density=True,
     )
 
     plt.title(feature)

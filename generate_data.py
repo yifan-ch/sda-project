@@ -17,7 +17,7 @@ def generate_data():
     df = pd.read_csv(Path(DATA_PATH) / "parkinsons_original.csv").drop("name", axis=1)
 
     # Create subject id and experiment number columns for easier indexing.
-    df.insert(0, "experiment", np.tile(np.arange(0, 6), len(df) // 6))
+    # df.insert(0, "experiment", np.tile(np.arange(0, 6), len(df) // 6))
     df.insert(0, "id", np.repeat(np.arange(0, len(df) // 6), 6))
     # Add variables vocal range and relative pitch
     df.insert(5, "vocal_range", df["MDVP:Fhi(Hz)"] - df["MDVP:Flo(Hz)"])
@@ -46,7 +46,7 @@ def generate_data():
     z_scores = (grouped_df - mean_of_means) / std_of_means
 
     # Save the z-scores to a new CSV file
-    write(z_scores.drop(["id", "experiment"], axis=1), "parkinsons_z_scores.csv")
+    write(z_scores.drop(["id"], axis=1), "parkinsons_z_scores.csv")
     return z_scores
 
 
