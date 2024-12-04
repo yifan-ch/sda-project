@@ -3,6 +3,7 @@ import pandas as pd
 from pathlib import Path
 from env import DATA_PATH, DATA_GENERATED_PATH
 
+import scipy
 
 def write(df, filename):
     df.to_csv(Path(DATA_GENERATED_PATH) / filename, index=False)
