@@ -2,3 +2,4 @@ venv
 requirements.in
 __pycache__
 results/*
+.vscode/*
