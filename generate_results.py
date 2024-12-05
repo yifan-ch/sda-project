@@ -15,9 +15,8 @@ Path(PATHS["results"]["vif"]).mkdir(parents=True, exist_ok=True)
 
 
 def plot_histogram(df, k=20):
-    df.drop(["status"], axis=1)
-
-    for feature in df.columns:
+    # drop the status col in the feature list
+    for feature in df.drop(["status"], axis=1).columns:
         bins = np.linspace(df[feature].min(), df[feature].max(), k)
 
         plt.hist(
