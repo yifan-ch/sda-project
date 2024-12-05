@@ -1,5 +1,4 @@
 import numpy as np
-from data_model import Data
 
 
 def calculate_correlation_matrix(X):
@@ -49,9 +48,7 @@ def check_linear_dependency(X):
         print("Warning: Columns in X are linearly dependent or nearly so.")
 
 
-if __name__ == "__main__":
-    z_scores = Data.read("parkinsons_z_scores.csv")
-
+def vif(z_scores):
     # Get predictors
     X = z_scores.values
 
@@ -60,11 +57,15 @@ if __name__ == "__main__":
 
     # Compute the correlation matrix
     correlation_matrix = calculate_correlation_matrix(X)
-    print("Correlation Matrix:")
-    print(correlation_matrix)
+    # print("Correlation Matrix:")
+    # print(correlation_matrix)
 
     # Compute VIFs
     vif_values = calculate_vif(X)
-    print("VIFs:")
-    for i, var in enumerate(z_scores.columns):
-        print(f"{var}: {vif_values[i]:.2f}")
+    # print("VIFs:")
+    # for i, var in enumerate(z_scores.columns):
+    # print(f"{var}: {vif_values[i]:.2f}")
+
+    # return [f"{var}: {vif_values[i]:.2f}\n" for i, var in enumerate()]
+
+    return z_scores.columns, vif_values
