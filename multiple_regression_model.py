@@ -24,8 +24,8 @@ def perform_regression_sklearn(X, y):
     model.fit(X, y)
 
     # Get coefficients and intercept
-    print("Intercept:", model.intercept_)
-    print("Coefficients:", model.coef_)
+    # print("Intercept:", model.intercept_)
+    # print("Coefficients:", model.coef_)
 
     # Return the fitted model
     return model
@@ -39,6 +39,6 @@ def perform_regression_statsmodels(X, y):
     model = sm.OLS(y, X_with_intercept).fit()
 
     # Print the summary of the regression
-    print(model.summary())
+    # print(model.summary())
 
     return model
