@@ -11,7 +11,6 @@ PATHS = {
     },
     "results": {
         "histogram": RESULTS_PATH / "histogram",
-        # "linear-regression": RESULTS_PATH / "linear-regression",
         "multiple-regression": RESULTS_PATH / "multiple-regression",
         "vif": RESULTS_PATH / "vif",
     },

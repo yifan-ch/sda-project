@@ -30,7 +30,17 @@ def display(df):
     print(df.to_string())
 
 
-df_raw = read("parkinsons2_raw.csv")
-df_mean = read("parkinsons2_mean.csv")
-df_mean_mean = read("parkinsons2_mean_std.csv")
-df_z_scores = read("parkinsons2_z_scores.csv")
+# def df_raw():
+#     return read("parkinsons2_raw.csv")
+
+
+def df_mean():
+    return read("parkinsons_mean.csv")
+
+
+# def df_mean_mean():
+#     return read("parkinsons2_mean_std.csv")
+
+
+def df_z_scores():
+    return read("parkinsons_z_scores.csv")
