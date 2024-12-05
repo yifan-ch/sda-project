@@ -1,6 +1,6 @@
 import pandas as pd
 from pathlib import Path
-from env import DATA_GENERATED_PATH
+from env import PATHS
 
 
 class Data:
@@ -8,19 +8,29 @@ class Data:
     Data framework for querying and manipulating parkinsons data
     """
 
-    def __init__(self, path):
-        self.df = pd.read_csv(path)
-        self.features = self.df.columns
+    def read(filename, original=False):
+        return pd.read_csv(PATHS["data"]["original" if original else "generated"] / filename)
 
-        self.status_0 = self.df.loc[self.df["status"] == 0]
-        self.status_1 = self.df.loc[self.df["status"] == 1]
+    def write(df, filename):
+        # If path doesnt exist, create all missing folders
+        Path(PATHS["data"]["generated"]).mkdir(parents=True, exist_ok=True)
 
-    # def filter_feature(self, feature):
-    #     return self.df[feature]
+        df.to_csv(Path(PATHS["data"]["generated"]) / filename, index=False)
 
-    def display(self, df):
+    def status(df, stat):
+        return df.loc[df["status"] == stat]
+
+    def include(df, cols):
+        return df[cols]
+
+    def exclude(df, cols):
+        return df.drop(cols, axis=1)
+
+    def display(df):
         print(df.to_string())
 
 
-data_raw = Data(Path(DATA_GENERATED_PATH) / "parkinsons_raw.csv")
-data_mean = Data(Path(DATA_GENERATED_PATH) / "parkinsons_mean.csv")
+df_raw = Data.read("parkinsons_raw.csv")
+df_mean = Data.read("parkinsons_mean.csv")
+df_mean_mean = Data.read("parkinsons_mean_mean.csv")
+df_z_scores = Data.read("parkinsons_z_scores.csv")

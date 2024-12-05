@@ -1,0 +1,53 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from data_model import Data, df_mean, df_mean_mean, df_raw, df_z_scores
+from pathlib import Path
+from env import PATHS
+from multiple_regression_model import perform_regression_statsmodels, perform_regression_sklearn
+
+# if path doesnt exist, create all missing folders
+Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
+Path(PATHS["results"]["linear-regression"]).mkdir(parents=True, exist_ok=True)
+Path(PATHS["results"]["multiple-regression"]).mkdir(parents=True, exist_ok=True)
+
+
+def plot_histogram(df, k=20):
+    df.drop(["status"], axis=1)
+
+    for feature in df.columns:
+        bins = np.linspace(df[feature].min(), df[feature].max(), k)
+
+        plt.hist(
+            [Data.status(df, 0)[feature], Data.status(df, 1)[feature]],
+            bins=bins,
+            label=["Healthy (status=0)", "Parkinson's patient (status=1)"],
+            density=True,
+        )
+
+        plt.title(feature)
+        plt.legend()
+        plt.savefig(PATHS["results"]["histogram"] / feature.replace(":", "-"))
+        plt.clf()
+
+
+def plot_linear_regression(df):
+    pass
+
+
+def multiple_regression(z_scores):
+    """Multiple linear regression"""
+    # Define dependent variable (Y) and independent variables (X)
+    y = z_scores["status"].values
+    X = z_scores.drop(["status"], axis=1).values
+
+    print("Statsmodels Regression Results:")
+    model_statsmodels = perform_regression_statsmodels(X, y)
+
+    # Perform regression using scikit-learn
+    print("\nScikit-learn Regression Results:")
+    model_sklearn = perform_regression_sklearn(X, y)
+
+
+if __name__ == "__main__":
+    plot_histogram(df_mean)
+    multiple_regression(df_z_scores)
