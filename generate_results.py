@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from data_model import Data, df_mean, df_mean_mean, df_raw, df_z_scores
+import data_model
+from data_model import df_mean, df_mean_mean, df_raw, df_z_scores
 from pathlib import Path
 from env import PATHS
 from multiple_regression_model import perform_regression_statsmodels, perform_regression_sklearn
@@ -18,7 +19,7 @@ def plot_histogram(df, k=20):
         bins = np.linspace(df[feature].min(), df[feature].max(), k)
 
         plt.hist(
-            [Data.status(df, 0)[feature], Data.status(df, 1)[feature]],
+            [data_model.status(df, 0)[feature], data_model.status(df, 1)[feature]],
             bins=bins,
             label=["Healthy (status=0)", "Parkinson's patient (status=1)"],
             density=True,
