@@ -1,7 +1,5 @@
 import numpy as np
-from pathlib import Path
-import pandas as pd
-from env import DATA_GENERATED_PATH
+from data_model import Data
 
 
 def calculate_correlation_matrix(X):
@@ -52,7 +50,7 @@ def check_linear_dependency(X):
 
 
 if __name__ == "__main__":
-    z_scores = pd.read_csv(Path(DATA_GENERATED_PATH) / "parkinsons_z_scores.csv")
+    z_scores = Data.read("parkinsons_z_scores.csv")
 
     # Get predictors
     X = z_scores.values
