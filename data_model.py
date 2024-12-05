@@ -3,8 +3,8 @@ from pathlib import Path
 from env import PATHS
 
 
-def read(filename, original=False):
-    return pd.read_csv(PATHS["data"]["original" if original else "generated"] / filename)
+def read(filename, original=False, sep=","):
+    return pd.read_csv(PATHS["data"]["original" if original else "generated"] / filename, sep=sep)
 
 
 def write(df, filename):
@@ -30,7 +30,7 @@ def display(df):
     print(df.to_string())
 
 
-df_raw = read("parkinsons_raw.csv")
-df_mean = read("parkinsons_mean.csv")
-df_mean_mean = read("parkinsons_mean_mean.csv")
-df_z_scores = read("parkinsons_z_scores.csv")
+df_raw = read("parkinsons2_raw.csv")
+df_mean = read("parkinsons2_mean.csv")
+df_mean_mean = read("parkinsons2_mean_std.csv")
+df_z_scores = read("parkinsons2_z_scores.csv")
