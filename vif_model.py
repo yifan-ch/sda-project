@@ -56,7 +56,7 @@ def vif(z_scores):
     check_linear_dependency(X)
 
     # Compute the correlation matrix
-    correlation_matrix = calculate_correlation_matrix(X)
+    # correlation_matrix = calculate_correlation_matrix(X)
     # print("Correlation Matrix:")
     # print(correlation_matrix)
 
