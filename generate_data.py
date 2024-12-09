@@ -27,6 +27,9 @@ def generate_data():
 
     # Calculate z-scores for each person
     z_scores = (grouped_df - mean_of_means) / std_of_means
+    # fix the status
+    z_scores.drop(["status"], axis=1)
+    z_scores["status"] = grouped_df["status"]
 
     # Save the z-scores to a new CSV file
     write(z_scores, "parkinsons_z_scores.csv")
