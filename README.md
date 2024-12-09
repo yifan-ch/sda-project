@@ -13,7 +13,7 @@ python3 -m venv venv
 Activate it using the appropriate command for your platform:
 ```bash
 bash venv/bin/activate      # linux
-./venv/Scripts/Activate.bat   # windows
+./venv/Scripts/activate.bat   # windows
 source venv/bin/activate    # mac
 ```
 
@@ -34,3 +34,5 @@ Make
 ```
 
 ## Usage
+1. Generate the data by running `python3 generate_data.py`. The generated data can be found in `./data/generated/`.
+2. Generate the results by running `python3 generate_results.py`. The generated results can be found in `./results/`
