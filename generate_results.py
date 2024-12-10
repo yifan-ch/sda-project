@@ -86,6 +86,9 @@ def perform_accuracy_multiple_regression(df_z_scores, frac_training=0.5):
     rmse = root_mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
+    # calc accuracy on a simple treshhold
+    accuracy = np.sum([np.round(y_pred) == y_test]) / len(y_test)
+
     # Write result to file
     with open(
         PATHS["results"]["multiple-regression"] / "mulitple-regression-accuracy.txt", "w"
@@ -94,6 +97,7 @@ def perform_accuracy_multiple_regression(df_z_scores, frac_training=0.5):
         f.write(f"Mean squared error: {mse}\n")
         f.write(f"Root mean squared error: {rmse}\n")
         f.write(f"R-squared (goodness-of-fit): {r2}\n")
+        f.write(f"accuracy {accuracy}\n")
 
 
 if __name__ == "__main__":
