@@ -54,7 +54,7 @@ def perform_vif(df_z_scores):
         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
 
 
-def perform_accuracy_multiple_regression(df_z_scores, frac_training=0.5):
+def perform_accuracy_multiple_regression(df_z_scores, frac_training=0.5, tresh=0.5):
     # randomly split data into two parts based on the fraction.
     def split(df, frac=0.5):
         p1 = df.sample(frac=frac)  # frac
@@ -86,6 +86,9 @@ def perform_accuracy_multiple_regression(df_z_scores, frac_training=0.5):
     rmse = root_mean_squared_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
 
+    # calc accuracy on a simple treshhold
+    accuracy = np.sum([[y_pred >= tresh] == y_test]) / len(y_test)
+
     # Write result to file
     with open(
         PATHS["results"]["multiple-regression"] / "mulitple-regression-accuracy.txt", "w"
@@ -94,6 +97,7 @@ def perform_accuracy_multiple_regression(df_z_scores, frac_training=0.5):
         f.write(f"Mean squared error: {mse}\n")
         f.write(f"Root mean squared error: {rmse}\n")
         f.write(f"R-squared (goodness-of-fit): {r2}\n")
+        f.write(f"accuracy: {accuracy}\n")
 
 
 if __name__ == "__main__":
@@ -105,4 +109,4 @@ if __name__ == "__main__":
     plot_histogram(df_mean())
     perform_vif(df_z_scores())
     perform_multiple_regression(df_z_scores())
-    perform_accuracy_multiple_regression(df_z_scores(), 0.4)
+    perform_accuracy_multiple_regression(df_z_scores(), 0.5, 0.5)
