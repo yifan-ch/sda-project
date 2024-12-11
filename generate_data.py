@@ -7,7 +7,7 @@ from env import PATHS
 def generate_data():
 
     # Drop name column, as they don't contain important info
-    df = read("parkinsons.csv", original=True, sep=";")
+    df = read("pd_speech_features.csv", original=True, sep=",")
 
     write(df, "parkinsons_raw.csv")
 
@@ -22,14 +22,19 @@ def generate_data():
     write(grouped_df_mean_df, "parkinsons_mean_std.csv")
 
     # Calculate the overall mean and standard deviation of the means
-    mean_of_means = grouped_df.mean()
+    # mean_of_means = grouped_df.mean()
     std_of_means = grouped_df.std()
 
-    # Calculate z-scores for each person
-    z_scores = (grouped_df - mean_of_means) / std_of_means
+    # Calculate z-scores for all columns except 'status'
+    features = grouped_df.drop(columns=["status"])
+    z_scores = (features - features.mean()) / features.std()
+
+    # Add the unmodified 'status' column back
+    z_scores["status"] = grouped_df["status"]
 
     # Save the z-scores to a new CSV file
     write(z_scores, "parkinsons_z_scores.csv")
+
 
 
 if __name__ == "__main__":
