@@ -72,7 +72,6 @@ def test_regression_sklearn(df_z_scores, frac_training=0.5, tresh=0.5):
 
     # training data
     df_training = pd.concat([df_0_training, df_1_training], axis=0)
-
     y_training = df_training["status"].values
     X_training = df_training.drop(["status"], axis=1).values
 
