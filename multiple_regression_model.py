@@ -58,13 +58,17 @@ def split(df, frac=0.5):
     p1 = df.sample(frac=frac)  # frac
     p2 = df.drop(p1.index)  # 1-frac
 
-    return p2, p1
+    return p1, p2
 
 
 def test_regression_sklearn(df_z_scores, frac_training=0.5, tresh=0.5):
     # split the data into two fractions
-    df_0_training, df_0_test = split(data_model.status(df_z_scores, 0), frac_training)  # status 0
-    df_1_training, df_1_test = split(data_model.status(df_z_scores, 1), frac_training)  # status 1
+    df_0 = data_model.status(df_z_scores, 0)
+    # make sure we have equal amounts of subjects for patient and control
+    df_1 = data_model.status(df_z_scores, 1).sample(n=len(df_0))
+
+    df_0_training, df_0_test = split(df_0, frac_training)  # status 0
+    df_1_training, df_1_test = split(df_1, frac_training)  # status 1
 
     # training data
     df_training = pd.concat([df_0_training, df_1_training], axis=0)
