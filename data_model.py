@@ -18,12 +18,12 @@ def status(df, stat):
     return df.loc[df["status"] == stat]
 
 
-def include(df, cols):
-    return df[cols]
+# def include(df, cols):
+#     return df[cols]
 
 
-def exclude(df, cols):
-    return df.drop(cols, axis=1)
+# def exclude(df, cols):
+#     return df.drop(cols, axis=1)
 
 
 def display(df):

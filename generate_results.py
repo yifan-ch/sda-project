@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import data_model
 from data_model import df_z_scores
 from pathlib import Path
@@ -7,6 +8,8 @@ from env import PATHS
 from multiple_regression_model import perform_regression_statsmodels, test_regression_sklearn
 from logistic_regression import run_logistic_regression
 from vif_model import vif
+
+from itertools import product
 
 
 def plot_histogram(df, k=30):
@@ -77,8 +80,8 @@ def perform_accuracy_multiple_regression(
     return accuracy
 
 
-def plot_accuracy_over_frac(df, threshold, repetitions):
-    fracs = np.linspace(0.1, 0.9, 20)
+def plot_accuracy_over_frac(df, threshold, repetitions, resolution=20):
+    fracs = np.linspace(0.1, 0.9, resolution)
     accs = [
         perform_accuracy_multiple_regression(df, frac, threshold, repetitions) for frac in fracs
     ]
@@ -93,14 +96,14 @@ def plot_accuracy_over_frac(df, threshold, repetitions):
     plt.clf()
 
 
-def plot_accuracy_over_thresh(df, frac, repetitions):
-    threshs = np.linspace(0.1, 0.9, 20)
+def plot_accuracy_over_thres(df, frac, repetitions, resolution=20):
+    thresholds = np.linspace(0.1, 0.9, resolution)
     accs = [
         perform_accuracy_multiple_regression(df, frac, threshold, repetitions)
-        for threshold in threshs
+        for threshold in thresholds
     ]
 
-    plt.plot(threshs, accs, label="accuracy")
+    plt.plot(thresholds, accs, label="accuracy")
     plt.xlabel("threshhold")
     plt.ylabel("accuracy")
     plt.title(f"Accuracy as a function of threshhold for training_data_fraction={frac}")
@@ -108,6 +111,39 @@ def plot_accuracy_over_thresh(df, frac, repetitions):
 
     plt.savefig(PATHS["results"]["multiple-regression"] / "accuracy-over-threshold")
     plt.clf()
+
+
+def plot_accuracy_over_frac_thres(df, repetitions, resolution=20):
+    thresholds = fracs = np.linspace(0.1, 0.9, resolution)  # Define thresholds and fractions
+    threshold_grid, frac_grid = np.meshgrid(thresholds, fracs)  # Create a meshgrid
+
+    # Compute accuracies for each pair (threshold, fraction)
+    accuracies = np.array(
+        [
+            perform_accuracy_multiple_regression(df, f, t, repetitions)
+            for t, f in product(thresholds, fracs)
+        ]
+    ).reshape(
+        len(fracs), len(thresholds)
+    )  # Reshape to match the grid dimensions
+
+    # Create 3D plot
+    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+    surf = ax.plot_surface(
+        threshold_grid, frac_grid, accuracies, cmap=cm.coolwarm, linewidth=0, antialiased=False
+    )
+    # ax.plot_wireframe(threshold_grid, frac_grid, accuracies, cmap=cm.coolwarm, rstride=1, cstride=1)
+
+    ax.set_xlabel("threshold")
+    ax.set_ylabel("training data fraction")
+    ax.set_zlabel("accuracy")
+
+    ax.set_title("accuracy as a function of threshold and fraction of training data")
+
+    # Add color bar for reference
+    cbar = fig.colorbar(surf, shrink=0.5, aspect=10)
+    cbar.set_label("accuracy")
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -123,9 +159,10 @@ if __name__ == "__main__":
     # plot_histogram(df_mean())
     # perform_vif(df_z_scores())
     # perform_multiple_regression(df_z_scores())
-    perform_accuracy_multiple_regression(
-        df_z_scores(), fraction_training, threshhold, repetitions, write=True
-    )
-    plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
-    plot_accuracy_over_thresh(df_z_scores(), frac=fraction_training, repetitions=repetitions)
-    run_logistic_regression()
+    # perform_accuracy_multiple_regression(
+    #     df_z_scores(), fraction_training, threshhold, repetitions, write=True
+    # )
+    # plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
+    # plot_accuracy_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
+    plot_accuracy_over_frac_thres(df_z_scores(), repetitions=100)
+    # run_logistic_regression()

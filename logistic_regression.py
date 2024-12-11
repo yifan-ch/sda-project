@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import data_model
-from data_model import df_mean, df_z_scores
+from data_model import df_z_scores
 from pathlib import Path
 from env import PATHS
 from sklearn.model_selection import train_test_split
@@ -159,6 +158,7 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state):
     # print(f"False Negatives: {FN}")
 
     return accuracy, TP, FP, FN, TN, losses
+
 
 def run_logistic_regression():
     z_scores = df_z_scores()
