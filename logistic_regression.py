@@ -17,8 +17,10 @@ def initialize_parameters(num_features):
     bias = 0.0
     return weights, bias
 
+
 def sigmoid(z):
     return 1 / (1 + np.exp(-z))
+
 
 def forward_propagation(X, weights, bias):
     """
@@ -33,6 +35,7 @@ def forward_propagation(X, weights, bias):
     # print(f"predictions: {predictions}")
     return predictions
 
+
 def compute_loss(y_true, y_pred):
     m = y_true.shape[0]
 
@@ -44,7 +47,7 @@ def compute_loss(y_true, y_pred):
     # print("Log terms:", y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
 
     # Binary cross-entropy loss
-    loss = - (1 / m) * np.sum(
+    loss = -(1 / m) * np.sum(
         y_true * np.log(y_pred + epsilon) + (1 - y_true) * np.log(1 - y_pred + epsilon)
     )
     return loss
@@ -67,6 +70,7 @@ def backpropagation(X, y, y_pred):
     db = (1 / num_samples) * np.sum(dz)
     return dw, db
 
+
 def update_parameters(weights, bias, dw, db, learning_rate):
     """
     Update weights and bias using gradient descent.
@@ -74,6 +78,7 @@ def update_parameters(weights, bias, dw, db, learning_rate):
     weights -= learning_rate * dw
     bias -= learning_rate * db
     return weights, bias
+
 
 def predict_classes(y_pred, threshold=0.4):
     """
@@ -94,11 +99,12 @@ def calculate_metrics(y_true, y_pred_labels):
     FN = np.sum((y_true == 1) & (y_pred_labels == 0))
     # True Negatives
     TN = np.sum((y_true == 0) & (y_pred_labels == 0))
-    
+
     # Accuracy calculation
     accuracy = (TP + TN) / len(y_true)
-    
+
     return accuracy, TP, FP, FN, TN
+
 
 def train_logistic_regression(X, y, num_epochs, learning_rate):
     """
@@ -123,12 +129,15 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
 
     return weights, bias, losses
 
+
 def train_and_evaluate(X, y, num_epochs, learning_rate, random_state):
     """
     Train and evaluate logistic regression on a dataset with a given random_state for data splitting.
     """
     # Split the dataset into training and test sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=random_state)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=random_state
+    )
 
     # print(f"\nTraining and evaluating with random_state={random_state}")
 
@@ -138,24 +147,24 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state):
     # Evaluate the model on the test set
     y_test_pred = forward_propagation(X_test, weights, bias)
     y_test_pred_labels = predict_classes(y_test_pred)
-    
+
     # Calculate metrics
     accuracy, TP, FP, FN, TN = calculate_metrics(y_test, y_test_pred_labels)
-    
+
     # Print the metrics for this run
     # print(f"Test Accuracy: {accuracy * 100:.2f}%")
     # print(f"True Positives: {TP}")
     # print(f"True Negatives: {TN}")
     # print(f"False Positives: {FP}")
     # print(f"False Negatives: {FN}")
-    
+
     return accuracy, TP, FP, FN, TN, losses
 
 
 if __name__ == "__main__":
     z_scores = df_z_scores()
-    X = z_scores.drop(columns=['status']).to_numpy()
-    y = z_scores['status'].to_numpy().reshape(-1, 1)  # Reshape to (m, 1) for matrix multiplication
+    X = z_scores.drop(columns=["status"]).to_numpy()
+    y = z_scores["status"].to_numpy().reshape(-1, 1)  # Reshape to (m, 1) for matrix multiplication
 
     # Hyperparameters
     num_epochs = 1000
@@ -171,8 +180,10 @@ if __name__ == "__main__":
 
     # Run the training and evaluation 1000 times with different random_state values
     for random_state in range(100):
-        accuracy, TP, FP, FN, TN, losses = train_and_evaluate(X, y, num_epochs, learning_rate, random_state)
-        
+        accuracy, TP, FP, FN, TN, losses = train_and_evaluate(
+            X, y, num_epochs, learning_rate, random_state
+        )
+
         # Store the results for this run
         accuracies.append(accuracy)
         true_positives.append(TP)

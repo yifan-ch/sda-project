@@ -4,7 +4,8 @@ import data_model
 from data_model import df_mean, df_z_scores
 from pathlib import Path
 from env import PATHS
-from multiple_regression_model import perform_regression_statsmodels
+from multiple_regression_model import perform_regression_statsmodels, test_regression_sklearn
+
 from vif_model import vif
 
 
@@ -33,15 +34,11 @@ def perform_multiple_regression(z_scores):
     y = z_scores["status"].values
     X = z_scores.drop(["status"], axis=1).values
 
-    model_statsmodels = perform_regression_statsmodels(X, y)
+    model = perform_regression_statsmodels(X, y)
 
     # Write result to file
     with open(PATHS["results"]["multiple-regression"] / "multiple-regression.txt", "w") as f:
-        print(model_statsmodels.summary(), file=f)
-
-    # Perform regression using scikit-learn
-    # print("\nScikit-learn Regression Results:")
-    # model_sklearn = perform_regression_sklearn(X, y)
+        print(model.summary(), file=f)
 
 
 def perform_vif(df_z_scores):
@@ -51,12 +48,72 @@ def perform_vif(df_z_scores):
         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
 
 
+def perform_accuracy_multiple_regression(
+    df_z_scores, frac_training=0.5, tresh=0.5, repetitions=100, write=False
+):
+    # perform multiple repetitions of the test and calc the mean
+    mae, mse, rmse, r2, accuracy = np.mean(
+        np.array(
+            [
+                np.array(test_regression_sklearn(df_z_scores, frac_training, tresh))
+                for _ in range(repetitions)
+            ]
+        ),
+        axis=0,
+    )
+
+    if write:
+
+        # Write result to file
+        with open(
+            PATHS["results"]["multiple-regression"] / "mulitple-regression-accuracy.txt", "w"
+        ) as f:
+            f.write(f"Mean absolute error: {mae}\n")
+            f.write(f"Mean squared error: {mse}\n")
+            f.write(f"Root mean squared error: {rmse}\n")
+            f.write(f"R-squared (goodness-of-fit): {r2}\n")
+            f.write(f"accuracy: {accuracy}\n")
+
+    return accuracy
+
+
+def plot_accuracy_over_frac(df, tresh, repetitions):
+    fracs = np.linspace(0.1, 0.9, 20)
+    accs = [perform_accuracy_multiple_regression(df, frac, tresh, repetitions) for frac in fracs]
+
+    plt.plot(fracs, accs, label="accuracy")
+    plt.xlabel("fraction of training data")
+    plt.ylabel("accuracy")
+    plt.title(f"Accuracy as a function of training data fraction for treshold={tresh}")
+    plt.legend()
+
+    plt.savefig(PATHS["results"]["multiple-regression"] / "accuracy-over-fraction")
+    plt.clf()
+
+
+def plot_accuracy_over_tresh(df, frac, repetitions):
+    treshs = np.linspace(0.1, 0.9, 20)
+    accs = [perform_accuracy_multiple_regression(df, frac, tresh, repetitions) for tresh in treshs]
+
+    plt.plot(treshs, accs, label="accuracy")
+    plt.xlabel("treshhold")
+    plt.ylabel("accuracy")
+    plt.title(f"Accuracy as a function of treshhold for training_data_fraction={frac}")
+    plt.legend()
+
+    plt.savefig(PATHS["results"]["multiple-regression"] / "accuracy-over-tresh")
+    plt.clf()
+
+
 if __name__ == "__main__":
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["multiple-regression"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["vif"]).mkdir(parents=True, exist_ok=True)
 
-    plot_histogram(df_mean())
-    perform_vif(df_z_scores())
-    perform_multiple_regression(df_z_scores())
+    # plot_histogram(df_mean())
+    # perform_vif(df_z_scores())
+    # perform_multiple_regression(df_z_scores())
+    # perform_accuracy_multiple_regression(df_z_scores(), 0.5, 0.5, 1000, write=True)
+    plot_accuracy_over_frac(df_z_scores(), tresh=0.95, repetitions=1000)
+    plot_accuracy_over_tresh(df_z_scores(), frac=0.5, repetitions=1000)

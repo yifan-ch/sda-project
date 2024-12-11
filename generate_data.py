@@ -7,7 +7,7 @@ from env import PATHS
 def generate_data():
 
     # Drop name column, as they don't contain important info
-    df = read("pd_speech_features.csv", original=True, sep=",")
+    df = read("parkinsons.csv", original=True, sep=",")
 
     write(df, "parkinsons_raw.csv")
 
@@ -23,7 +23,7 @@ def generate_data():
 
     # Calculate the overall mean and standard deviation of the means
     # mean_of_means = grouped_df.mean()
-    std_of_means = grouped_df.std()
+    # std_of_means = grouped_df.std()
 
     # Calculate z-scores for all columns except 'status'
     features = grouped_df.drop(columns=["status"])
@@ -34,7 +34,6 @@ def generate_data():
 
     # Save the z-scores to a new CSV file
     write(z_scores, "parkinsons_z_scores.csv")
-
 
 
 if __name__ == "__main__":

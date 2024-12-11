@@ -1,8 +1,17 @@
 import pandas as pd
+import numpy as np
 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
+import data_model
+
+from sklearn.metrics import (
+    mean_squared_error,
+    mean_absolute_error,
+    root_mean_squared_error,
+    r2_score,
+)
 
 
 def calculate_correlation_matrix_with_pandas(X, z_scores):
@@ -42,3 +51,46 @@ def perform_regression_statsmodels(X, y):
     # print(model.summary())
 
     return model
+
+
+# randomly split data into two parts based on the fraction.
+def split(df, frac=0.5):
+    p1 = df.sample(frac=frac)  # frac
+    p2 = df.drop(p1.index)  # 1-frac
+
+    return p1, p2
+
+
+def test_regression_sklearn(df_z_scores, frac_training=0.5, tresh=0.5):
+    # split the data into two fractions
+    df_0 = data_model.status(df_z_scores, 0)
+    # make sure we have equal amounts of subjects for patient and control
+    df_1 = data_model.status(df_z_scores, 1).sample(n=len(df_0))
+
+    df_0_training, df_0_test = split(df_0, frac_training)  # status 0
+    df_1_training, df_1_test = split(df_1, frac_training)  # status 1
+
+    # training data
+    df_training = pd.concat([df_0_training, df_1_training], axis=0)
+
+    y_training = df_training["status"].values
+    X_training = df_training.drop(["status"], axis=1).values
+
+    # test data
+    df_test = pd.concat([df_0_test, df_1_test], axis=0)
+    y_test = df_test["status"].values
+    X_test = df_test.drop(["status"], axis=1).values
+
+    model = perform_regression_sklearn(X_training, y_training)
+
+    # predict
+    y_pred = model.predict(X_test)
+    mae = mean_absolute_error(y_test, y_pred)
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = root_mean_squared_error(y_test, y_pred)
+    r2 = r2_score(y_test, y_pred)
+
+    # calc accuracy on a simple treshhold
+    accuracy = np.sum([[y_pred >= tresh] == y_test]) / len(y_test)
+
+    return mae, mse, rmse, r2, accuracy
