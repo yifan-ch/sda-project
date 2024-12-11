@@ -34,8 +34,8 @@ def display(df):
 #     return read("parkinsons2_raw.csv")
 
 
-def df_mean():
-    return read("parkinsons_mean.csv")
+# def df_mean():
+#     return read("parkinsons_mean.csv")
 
 
 # def df_mean_mean():
