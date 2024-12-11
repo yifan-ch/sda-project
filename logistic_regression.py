@@ -41,7 +41,7 @@ def compute_loss(y_true, y_pred):
 
     # Avoid division by zero by clipping predicted probabilities
     # y_pred = np.clip(y_pred, 1e-10, 1 - 1e-10)
-    epsilon = 1e-9
+    epsilon = 1e-10
     # Debugging the predictions and log terms
     # print("Clipped predictions:", y_pred)
     # print("Log terms:", y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
@@ -79,8 +79,7 @@ def update_parameters(weights, bias, dw, db, learning_rate):
     bias -= learning_rate * db
     return weights, bias
 
-
-def predict_classes(y_pred, threshold=0.4):
+def predict_classes(y_pred, threshold=0.025):
     """
     Convert predicted probabilities to class labels.
     """
@@ -169,6 +168,7 @@ if __name__ == "__main__":
     # Hyperparameters
     num_epochs = 1000
     learning_rate = 0.01
+    num_rep = 100
 
     # List to store results
     accuracies = []
@@ -179,11 +179,9 @@ if __name__ == "__main__":
     all_losses = []
 
     # Run the training and evaluation 1000 times with different random_state values
-    for random_state in range(100):
-        accuracy, TP, FP, FN, TN, losses = train_and_evaluate(
-            X, y, num_epochs, learning_rate, random_state
-        )
-
+    for random_state in range(num_rep):
+        accuracy, TP, FP, FN, TN, losses = train_and_evaluate(X, y, num_epochs, learning_rate, random_state)
+        
         # Store the results for this run
         accuracies.append(accuracy)
         true_positives.append(TP)
@@ -203,16 +201,17 @@ if __name__ == "__main__":
     print(f"minimum accuracy: {min(accuracies)}")
     print(f"maximum accuracy: {max(accuracies)}")
 
-    print("Averaged Metrics After 1000 Runs:")
+    print(f"Averaged Metrics After {num_rep} Runs:")
     print(f"Average Accuracy: {(round(avg_accuracy, 2))*100}%")
     print(f"Average True Positives: {avg_true_positive}")
+    print(f"Average True Negatives: {avg_true_negative}")
     print(f"Average False Positives: {avg_false_positive}")
     print(f"Average False Negatives: {avg_false_negative}")
-    print(f"Average True Negatives: {avg_true_negative}")
+
     print(f"Average Final Loss: {avg_loss}")
 
     # Plot the final loss curve for all 1000 runs
-    plt.plot(range(100), all_losses)
+    plt.plot(range(num_rep), all_losses)
     plt.xlabel("Run Index")
     plt.ylabel("Final Loss")
     plt.title("Final Loss Across 1000 Runs")
