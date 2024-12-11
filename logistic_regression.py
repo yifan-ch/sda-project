@@ -160,8 +160,7 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state):
 
     return accuracy, TP, FP, FN, TN, losses
 
-
-if __name__ == "__main__":
+def run_logistic_regression():
     z_scores = df_z_scores()
     X = z_scores.drop(columns=["status"]).to_numpy()
     y = z_scores["status"].to_numpy().reshape(-1, 1)  # Reshape to (m, 1) for matrix multiplication
@@ -179,7 +178,7 @@ if __name__ == "__main__":
     all_losses = []
 
     # Run the training and evaluation 1000 times with different random_state values
-    for random_state in range(100):
+    for random_state in range(10):
         accuracy, TP, FP, FN, TN, losses = train_and_evaluate(
             X, y, num_epochs, learning_rate, random_state
         )
@@ -212,8 +211,12 @@ if __name__ == "__main__":
     print(f"Average Final Loss: {avg_loss}")
 
     # Plot the final loss curve for all 1000 runs
-    plt.plot(range(100), all_losses)
+    plt.plot(range(10), all_losses)
     plt.xlabel("Run Index")
     plt.ylabel("Final Loss")
     plt.title("Final Loss Across 1000 Runs")
     plt.show()
+
+
+if __name__ == "__main__":
+    run_logistic_regression()
