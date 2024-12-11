@@ -5,7 +5,7 @@ from data_model import df_z_scores
 from pathlib import Path
 from env import PATHS
 from multiple_regression_model import perform_regression_statsmodels, test_regression_sklearn
-
+from logistic_regression import run_logistic_regression
 from vif_model import vif
 
 
@@ -128,3 +128,4 @@ if __name__ == "__main__":
     )
     plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
     plot_accuracy_over_thresh(df_z_scores(), frac=fraction_training, repetitions=repetitions)
+    run_logistic_regression()
