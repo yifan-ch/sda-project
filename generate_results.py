@@ -106,6 +106,10 @@ def plot_accuracy_over_tresh(df, frac, repetitions):
 
 
 if __name__ == "__main__":
+    repetitions = 500
+    treshhold = 0.5
+    fraction_training = 0.5
+
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["multiple-regression"]).mkdir(parents=True, exist_ok=True)
@@ -114,6 +118,8 @@ if __name__ == "__main__":
     # plot_histogram(df_mean())
     # perform_vif(df_z_scores())
     # perform_multiple_regression(df_z_scores())
-    # perform_accuracy_multiple_regression(df_z_scores(), 0.5, 0.5, 1000, write=True)
-    plot_accuracy_over_frac(df_z_scores(), tresh=0.95, repetitions=1000)
-    plot_accuracy_over_tresh(df_z_scores(), frac=0.5, repetitions=1000)
+    perform_accuracy_multiple_regression(
+        df_z_scores(), fraction_training, treshhold, repetitions, write=True
+    )
+    plot_accuracy_over_frac(df_z_scores(), tresh=treshhold, repetitions=repetitions)
+    plot_accuracy_over_tresh(df_z_scores(), frac=fraction_training, repetitions=repetitions)
