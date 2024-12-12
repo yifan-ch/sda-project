@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-<<<<<<< HEAD
-=======
 import data_model
->>>>>>> 60bd33406a6156225eb335537f2e5abe15328b39
 from data_model import df_z_scores
 from pathlib import Path
 from env import PATHS
@@ -135,7 +132,9 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
     return weights, bias, losses
 
 
-def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5):
+def train_and_evaluate(
+    X, y, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5
+):
     """
     Train and evaluate logistic regression on a dataset with a given random_state for data splitting.
     """
@@ -143,7 +142,9 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_train
 
     # Split the data for status 0 (64 total samples)
     df_0 = data_model.status(z_scores, 0)
-    df_0_training, df_0_test = split(df_0, frac_training)  # Divide evenly between training and testing
+    df_0_training, df_0_test = split(
+        df_0, frac_training
+    )  # Divide evenly between training and testing
 
     # Split the data for status 1 (188 total samples)
     df_1 = data_model.status(z_scores, 1)
@@ -174,11 +175,12 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_train
     # print(f"y_train: {(y_train.shape)}")
     # print(f"y_test2: {(y_test2.shape)}")
 
-
     # print(f"\nTraining and evaluating with random_state={random_state}")
 
     # Train the model on the training set
-    weights, bias, losses = train_logistic_regression(x_training, y_training, num_epochs, learning_rate)
+    weights, bias, losses = train_logistic_regression(
+        x_training, y_training, num_epochs, learning_rate
+    )
 
     # Evaluate the model on the test set
     y_test_pred = forward_propagation(X_test, weights, bias)
@@ -188,6 +190,7 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_train
     accuracy, TP, FP, FN, TN = calculate_metrics(y_test, y_test_pred_labels)
 
     return accuracy, TP, FP, FN, TN, losses
+
 
 def run_logistic_regression(threshold=0.5, num_reps=100):
     z_scores = df_z_scores()
@@ -245,6 +248,7 @@ def run_logistic_regression(threshold=0.5, num_reps=100):
     plt.ylabel("Final Loss")
     plt.title(f"Final Loss Across {num_reps} Runs")
     plt.show()
+
 
 if __name__ == "__main__":
     run_logistic_regression()
