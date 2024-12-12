@@ -22,7 +22,7 @@ Lastly install the required dependencies:
 pip install -r requirements.txt
 ```
 
-To recompile depencencies, `pip-tools`, `pipreqs` and `Make` must be installed:
+If you wish to recompile depencencies, `pip-tools`, `pipreqs` and `Make` must be installed:
 ```bash
 # install (only do this once)
 pip install pip-tools
