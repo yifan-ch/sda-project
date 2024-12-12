@@ -120,12 +120,11 @@ def plot_stats_over_thres(df, frac, repetitions, resolution=20):
     def plot(names, stats):
         colors = ("blue", "green", "red", "orange")[: len(names)]
         for name, stat, color in zip(names, stats, colors):
-            name = name.split(" ")[0]  # only keep the first word
             plt.plot(thresholds, stat, label=name, color=color)
             plt.xlabel("threshold")
             plt.ylabel("value")
 
-        plt.title(f"{', '.join(names)} as a function of threshold")
+        plt.title(f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold")
         plt.figtext(0, 0, f"for training_data_fraction={frac}, repetitions={repetitions}")
         plt.legend()
         plt.savefig(
