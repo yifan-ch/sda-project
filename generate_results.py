@@ -123,9 +123,9 @@ if __name__ == "__main__":
     # plot_histogram(df_mean())
     # perform_vif(df_z_scores())
     # perform_multiple_regression(df_z_scores())
-    perform_accuracy_multiple_regression(
-        df_z_scores(), fraction_training, threshhold, repetitions, write=True
-    )
-    plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
-    plot_accuracy_over_thresh(df_z_scores(), frac=fraction_training, repetitions=repetitions)
-    run_logistic_regression()
+    # perform_accuracy_multiple_regression(
+    #     df_z_scores(), fraction_training, threshhold, repetitions, write=True
+    # )
+    # plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
+    # plot_accuracy_over_thresh(df_z_scores(), frac=fraction_training, repetitions=repetitions)
+    run_logistic_regression(threshold=0.25, num_reps=10)
