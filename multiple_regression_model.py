@@ -80,13 +80,16 @@ def calculate_metrics(y_true, y_pred_labels):
     TN = np.sum((y_true == 0) & (y_pred_labels == 0))
 
     # Accuracy calculation
-    accuracy = (TP + TN) / len(y_true)
-    TPR = TP / (TP + FN)
-    FPR = FP / (TN + FP)
+    recall = TPR = TP / (TP + FN)
+    FPR = FP / (FP + TN)
     TNR = TN / (TN + FP)
-    FNR = FN / (TP + FN)
+    FNR = FN / (FN + TP)
 
-    return accuracy, TPR, FPR, FNR, TNR
+    accuracy = (TP + TN) / len(y_true)
+    precision = TP / (TP + FP)
+    f1 = 2 * ((precision * recall) / (precision + recall))
+
+    return accuracy, precision, recall, f1, TPR, FPR, FNR, TNR
 
 
 def test_regression_sklearn(z_scores, frac_training=0.5, thres=0.5):

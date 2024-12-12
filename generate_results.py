@@ -51,13 +51,11 @@ def perform_vif(df):
         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
 
 
-def perform_stats_multiple_regression(
-    df, frac_training=0.5, threshold=0.5, repetitions=100, write=False
-):
+def stats_multiple_regression(df, frac_training=0.5, threshold=0.5, repetitions=100):
     # mae, mse, rmse, r2, accuracy = np.mean(
 
     # perform multiple repetitions of the test and calc the mean
-    accuracy, TPR, FPR, FNR, TNR = np.mean(
+    accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = np.mean(
         np.array(
             [
                 np.array(test_regression_sklearn(df, frac_training, threshold))
@@ -67,29 +65,36 @@ def perform_stats_multiple_regression(
         axis=0,
     )
 
-    if write:
+    return accuracy, precision, recall, f1, TPR, FPR, FNR, TNR
 
-        # Write result to file
-        with open(
-            PATHS["results"]["multiple-regression"] / "mulitple-regression-accuracy.txt", "w"
-        ) as f:
-            # f.write(f"Mean absolute error: {mae}\n")
-            # f.write(f"Mean squared error: {mse}\n")
-            # f.write(f"Root mean squared error: {rmse}\n")
-            # f.write(f"R-squared (goodness-of-fit): {r2}\n")
-            # f.write(f"accuracy: {accuracy}\n")
 
-            f.write(
-                f"stats for threshold={threshold}, fraction_training={frac_training}, repetitions={repetitions}"
-            )
+def perform_stats_multiple_regression(df, frac_training=0.5, threshold=0.5, repetitions=100):
+    accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = stats_multiple_regression(
+        df, frac_training, threshold, repetitions
+    )
 
-            f.write(f"accuracy: {accuracy}\n")
-            f.write(f"TPR: {TPR}\n")
-            f.write(f"FPR: {FPR}\n")
-            f.write(f"TNR: {TNR}\n")
-            f.write(f"FNR: {FNR}\n")
+    with open(
+        PATHS["results"]["multiple-regression"] / "mulitple-regression-classification.txt", "w"
+    ) as f:
+        # f.write(f"Mean absolute error: {mae}\n")
+        # f.write(f"Mean squared error: {mse}\n")
+        # f.write(f"Root mean squared error: {rmse}\n")
+        # f.write(f"R-squared (goodness-of-fit): {r2}\n")
+        # f.write(f"accuracy: {accuracy}\n")
 
-    return accuracy, TPR, FPR, FNR, TNR
+        f.write(
+            f"stats for threshold={threshold}, fraction_training={frac_training}, repetitions={repetitions}\n\n"
+        )
+
+        f.write(f"accuracy (frac. correct):                                 {accuracy}\n")
+        f.write(f"precision (frac. predicted positive actually positive):   {precision}\n")
+        f.write(f"recall (frac. actual positives correctly identified):     {recall}\n")
+        f.write(f"F1 (harmonic mean of precision and recall):               {f1}\n\n")
+
+        f.write(f"TPR:                  {TPR}\n")
+        f.write(f"FPR (type I error):   {FPR}\n")
+        f.write(f"TNR:                  {TNR}\n")
+        f.write(f"FNR (type II error):  {FNR}\n")
 
 
 def plot_accuracy_over_frac(df, threshold, repetitions, resolution=20):
@@ -108,16 +113,14 @@ def plot_accuracy_over_frac(df, threshold, repetitions, resolution=20):
 
 def plot_stats_over_thres(df, frac, repetitions, resolution=20):
     thresholds = np.linspace(0.1, 0.9, resolution)
-    acc, TPR, FPR, TNR, FNR = zip(
-        *[
-            perform_stats_multiple_regression(df, frac, threshold, repetitions)
-            for threshold in thresholds
-        ]
+    accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = zip(
+        *[stats_multiple_regression(df, frac, threshold, repetitions) for threshold in thresholds]
     )
 
     def plot(names, stats):
-        colors = ("blue", "green", "red")
+        colors = ("blue", "green", "red", "orange")[: len(names)]
         for name, stat, color in zip(names, stats, colors):
+            name = name.split(" ")[0]  # only keep the first word
             plt.plot(thresholds, stat, label=name, color=color)
             plt.xlabel("threshold")
             plt.ylabel("value")
@@ -125,11 +128,17 @@ def plot_stats_over_thres(df, frac, repetitions, resolution=20):
         plt.title(f"{', '.join(names)} as a function of threshold")
         plt.figtext(0, 0, f"for training_data_fraction={frac}, repetitions={repetitions}")
         plt.legend()
-        plt.savefig(PATHS["results"]["multiple-regression"] / f"{'-'.join(names)}-over-threshold")
+        plt.savefig(
+            PATHS["results"]["multiple-regression"]
+            / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold"  # only keep first word
+        )
         plt.clf()
 
-    plot(("accuracy", "TNR", "FNR"), (acc, TNR, FNR))
-    plot(("accuracy", "TPR", "FPR"), (acc, TPR, FPR))
+    plot(("accuracy", "TNR", "FNR"), (accuracy, TNR, FNR))
+    plot(("accuracy", "TPR", "FPR"), (accuracy, TPR, FPR))
+    plot(("accuracy", "FPR (type I error)", "FNR (type II error)"), (accuracy, FPR, FNR))
+
+    plot(("accuracy", "precision", "recall", "f1"), (accuracy, precision, recall, f1))
 
 
 def plot_stats_over_frac_thres(df, repetitions, resolution=20):
@@ -138,10 +147,7 @@ def plot_stats_over_frac_thres(df, repetitions, resolution=20):
 
     # Compute accuracies for each pair (threshold, fraction)
     accuracies = np.array(
-        [
-            perform_stats_multiple_regression(df, f, t, repetitions)
-            for t, f in product(thresholds, fracs)
-        ]
+        [stats_multiple_regression(df, f, t, repetitions) for t, f in product(thresholds, fracs)]
     ).reshape(
         len(fracs), len(thresholds)
     )  # Reshape to match the grid dimensions
@@ -167,7 +173,7 @@ def plot_stats_over_frac_thres(df, repetitions, resolution=20):
 
 if __name__ == "__main__":
     repetitions = 100
-    threshhold = 0.5
+    threshold = 0.5
     fraction_training = 0.6
 
     # if path doesnt exist, create all missing folders
@@ -178,9 +184,7 @@ if __name__ == "__main__":
     # plot_histogram(df_mean())
     # perform_vif(df_z_scores())
     # perform_multiple_regression(df_z_scores())
-    perform_stats_multiple_regression(
-        df_z_scores(), fraction_training, threshhold, repetitions, write=True
-    )
+    perform_stats_multiple_regression(df_z_scores(), fraction_training, threshold, repetitions)
     # plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
     plot_stats_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
     # plot_accuracy_over_frac_thres(df_z_scores(), repetitions=100)
