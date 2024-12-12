@@ -125,17 +125,14 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
 
         # Backpropagation
         dw, db = backpropagation(X, y, y_pred)
-        # print(f"  X shape: {X.shape}")
-        # print(f"  weights shape: {weights.shape}")
-        # print(f"  dw shape: {dw.shape}")
-        # print(f"  db: {db}")
+
         # Update parameters
         weights, bias = update_parameters(weights, bias, dw, db, learning_rate)
 
     return weights, bias, losses
 
 
-def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_training=0.5):
+def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5):
     """
     Train and evaluate logistic regression on a dataset with a given random_state for data splitting.
     """
@@ -182,21 +179,14 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_train
 
     # Evaluate the model on the test set
     y_test_pred = forward_propagation(X_test, weights, bias)
-    y_test_pred_labels = predict_classes(y_test_pred)
+    y_test_pred_labels = predict_classes(y_test_pred, threshold=threshold)
 
     # Calculate metrics
     accuracy, TP, FP, FN, TN = calculate_metrics(y_test, y_test_pred_labels)
 
-    # Print the metrics for this run
-    # print(f"Test Accuracy: {accuracy * 100:.2f}%")
-    # print(f"True Positives: {TP}")
-    # print(f"True Negatives: {TN}")
-    # print(f"False Positives: {FP}")
-    # print(f"False Negatives: {FN}")
-
     return accuracy, TP, FP, FN, TN, losses
 
-def run_logistic_regression():
+def run_logistic_regression(threshold=0.5, num_reps=100):
     z_scores = df_z_scores()
     X = z_scores.drop(columns=["status"]).to_numpy()
     y = z_scores["status"].to_numpy().reshape(-1, 1)  # Reshape to (m, 1) for matrix multiplication
@@ -204,7 +194,6 @@ def run_logistic_regression():
     # Hyperparameters
     num_epochs = 1000
     learning_rate = 0.01
-    num_reps = 100
 
     # List to store results
     accuracies = []
@@ -217,7 +206,7 @@ def run_logistic_regression():
     # Run the training and evaluation 1000 times with different random_state values
     for random_state in range(num_reps):
         accuracy, TP, FP, FN, TN, losses = train_and_evaluate(
-            X, y, num_epochs, learning_rate, random_state
+            X, y, num_epochs, learning_rate, random_state, threshold
         )
 
         # Store the results for this run

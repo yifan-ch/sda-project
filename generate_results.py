@@ -128,4 +128,4 @@ if __name__ == "__main__":
     # )
     # plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
     # plot_accuracy_over_thresh(df_z_scores(), frac=fraction_training, repetitions=repetitions)
-    run_logistic_regression()
+    run_logistic_regression(threshold=0.25, num_reps=10)
