@@ -18,28 +18,8 @@ def status(df, stat):
     return df.loc[df["status"] == stat]
 
 
-# def include(df, cols):
-#     return df[cols]
-
-
-# def exclude(df, cols):
-#     return df.drop(cols, axis=1)
-
-
 def display(df):
     print(df.to_string())
-
-
-# def df_raw():
-#     return read("parkinsons2_raw.csv")
-
-
-# def df_mean():
-#     return read("parkinsons_mean.csv")
-
-
-# def df_mean_mean():
-#     return read("parkinsons2_mean_std.csv")
 
 
 def df_z_scores():

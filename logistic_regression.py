@@ -148,7 +148,9 @@ def train_and_evaluate(
 
     # Split the data for status 1 (188 total samples)
     df_1 = data_model.status(z_scores, 1)
-    df_1_test = df_1.sample(n=32, random_state=random_state)  # Select 32 samples for the test set
+    df_1_test = df_1.sample(
+        n=df_0_test, random_state=random_state
+    )  # Select 32 samples for the test set
     df_1_training = df_1.drop(df_1_test.index)  # The rest go into the training set
 
     # Combine the training data

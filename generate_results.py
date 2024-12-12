@@ -44,21 +44,31 @@ def perform_multiple_regression(z_scores):
         print(model.summary(), file=f)
 
 
-def perform_vif(df_z_scores):
-    columns, vif_values = vif(df_z_scores)
+def perform_vif(df):
+    columns, vif_values = vif(df)
     # Write result to file
     with open(PATHS["results"]["vif"] / "vif.txt", "w") as f:
         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
 
 
 def perform_accuracy_multiple_regression(
-    df_z_scores, frac_training=0.5, threshold=0.5, repetitions=100, write=False
+    df, frac_training=0.5, threshold=0.5, repetitions=100, write=False
 ):
     # perform multiple repetitions of the test and calc the mean
-    mae, mse, rmse, r2, accuracy = np.mean(
+    # mae, mse, rmse, r2, accuracy = np.mean(
+    #     np.array(
+    #         [
+    #             np.array(test_regression_sklearn(df, frac_training, threshold))
+    #             for _ in range(repetitions)
+    #         ]
+    #     ),
+    #     axis=0,
+    # )
+
+    accuracy, TPR, FPR, FNR, TNR = np.mean(
         np.array(
             [
-                np.array(test_regression_sklearn(df_z_scores, frac_training, threshold))
+                np.array(test_regression_sklearn(df, frac_training, threshold))
                 for _ in range(repetitions)
             ]
         ),
@@ -71,11 +81,17 @@ def perform_accuracy_multiple_regression(
         with open(
             PATHS["results"]["multiple-regression"] / "mulitple-regression-accuracy.txt", "w"
         ) as f:
-            f.write(f"Mean absolute error: {mae}\n")
-            f.write(f"Mean squared error: {mse}\n")
-            f.write(f"Root mean squared error: {rmse}\n")
-            f.write(f"R-squared (goodness-of-fit): {r2}\n")
+            # f.write(f"Mean absolute error: {mae}\n")
+            # f.write(f"Mean squared error: {mse}\n")
+            # f.write(f"Root mean squared error: {rmse}\n")
+            # f.write(f"R-squared (goodness-of-fit): {r2}\n")
+            # f.write(f"accuracy: {accuracy}\n")
+
             f.write(f"accuracy: {accuracy}\n")
+            f.write(f"TPR: {TPR}\n")
+            f.write(f"FPR: {FPR}\n")
+            f.write(f"TNR: {TNR}\n")
+            f.write(f"FNR: {FNR}\n")
 
     return accuracy
 
@@ -159,10 +175,10 @@ if __name__ == "__main__":
     # plot_histogram(df_mean())
     # perform_vif(df_z_scores())
     # perform_multiple_regression(df_z_scores())
-    # perform_accuracy_multiple_regression(
-    #     df_z_scores(), fraction_training, threshhold, repetitions, write=True
-    # )
-    # plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
-    # plot_accuracy_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
+    perform_accuracy_multiple_regression(
+        df_z_scores(), fraction_training, threshhold, repetitions, write=True
+    )
+    plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
+    plot_accuracy_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
     # plot_accuracy_over_frac_thres(df_z_scores(), repetitions=100)
-    run_logistic_regression(threshold=0.25, num_reps=10)
+    # run_logistic_regression(threshold=0.25, num_reps=10)
