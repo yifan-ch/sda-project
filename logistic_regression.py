@@ -1,9 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
+<<<<<<< HEAD
+=======
+import data_model
+>>>>>>> 60bd33406a6156225eb335537f2e5abe15328b39
 from data_model import df_z_scores
 from pathlib import Path
 from env import PATHS
 from sklearn.model_selection import train_test_split
+from multiple_regression_model import split
+import pandas as pd
 
 
 def initialize_parameters(num_features):
@@ -79,7 +85,7 @@ def update_parameters(weights, bias, dw, db, learning_rate):
     return weights, bias
 
 
-def predict_classes(y_pred, threshold=0.4):
+def predict_classes(y_pred, threshold=0.25):
     """
     Convert predicted probabilities to class labels.
     """
@@ -129,38 +135,61 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
     return weights, bias, losses
 
 
-def train_and_evaluate(X, y, num_epochs, learning_rate, random_state):
+def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5):
     """
     Train and evaluate logistic regression on a dataset with a given random_state for data splitting.
     """
+    z_scores = df_z_scores()
+
+    # Split the data for status 0 (64 total samples)
+    df_0 = data_model.status(z_scores, 0)
+    df_0_training, df_0_test = split(df_0, frac_training)  # Divide evenly between training and testing
+
+    # Split the data for status 1 (188 total samples)
+    df_1 = data_model.status(z_scores, 1)
+    df_1_test = df_1.sample(n=32, random_state=random_state)  # Select 32 samples for the test set
+    df_1_training = df_1.drop(df_1_test.index)  # The rest go into the training set
+
+    # Combine the training data
+    df_training = pd.concat([df_0_training, df_1_training], axis=0)
+    y_training = df_training["status"].values.reshape(-1, 1)
+    x_training = df_training.drop(["status"], axis=1).values
+
+    # Combine the test data
+    df_test = pd.concat([df_0_test, df_1_test], axis=0)
+    y_test = df_test["status"].values.reshape(-1, 1)
+    X_test = df_test.drop(["status"], axis=1).values
+
     # Split the dataset into training and test sets
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=random_state
-    )
+    # X_train, X_test2, y_train, y_test2 = train_test_split(
+    #     X, y, test_size=0.3, random_state=random_state
+    # )
+
+    # print(f"y_training: {y_training.shape}")
+    # print(f"x_training: {(x_training.shape)}")
+    # print(f"y_test: {(y_test.shape)}")
+    # print(f"x_test: {(X_test.shape)}")
+    # print(f"X_train: {(X_train.shape)}")
+    # print(f"X_test2: {(X_test2.shape)}")
+    # print(f"y_train: {(y_train.shape)}")
+    # print(f"y_test2: {(y_test2.shape)}")
+
 
     # print(f"\nTraining and evaluating with random_state={random_state}")
 
     # Train the model on the training set
-    weights, bias, losses = train_logistic_regression(X_train, y_train, num_epochs, learning_rate)
+    weights, bias, losses = train_logistic_regression(x_training, y_training, num_epochs, learning_rate)
 
     # Evaluate the model on the test set
     y_test_pred = forward_propagation(X_test, weights, bias)
-    y_test_pred_labels = predict_classes(y_test_pred)
+    y_test_pred_labels = predict_classes(y_test_pred, threshold=threshold)
 
     # Calculate metrics
     accuracy, TP, FP, FN, TN = calculate_metrics(y_test, y_test_pred_labels)
 
-    # Print the metrics for this run
-    # print(f"Test Accuracy: {accuracy * 100:.2f}%")
-    # print(f"True Positives: {TP}")
-    # print(f"True Negatives: {TN}")
-    # print(f"False Positives: {FP}")
-    # print(f"False Negatives: {FN}")
-
     return accuracy, TP, FP, FN, TN, losses
 
-
-def run_logistic_regression():
+def run_logistic_regression(threshold=0.5, num_reps=100):
     z_scores = df_z_scores()
     X = z_scores.drop(columns=["status"]).to_numpy()
     y = z_scores["status"].to_numpy().reshape(-1, 1)  # Reshape to (m, 1) for matrix multiplication
@@ -178,9 +207,9 @@ def run_logistic_regression():
     all_losses = []
 
     # Run the training and evaluation 1000 times with different random_state values
-    for random_state in range(10):
+    for random_state in range(num_reps):
         accuracy, TP, FP, FN, TN, losses = train_and_evaluate(
-            X, y, num_epochs, learning_rate, random_state
+            X, y, num_epochs, learning_rate, random_state, threshold
         )
 
         # Store the results for this run
@@ -202,21 +231,20 @@ def run_logistic_regression():
     print(f"minimum accuracy: {min(accuracies)}")
     print(f"maximum accuracy: {max(accuracies)}")
 
-    print("Averaged Metrics After 1000 Runs:")
+    print(f"Averaged Metrics After {num_reps} Runs:")
     print(f"Average Accuracy: {(round(avg_accuracy, 2))*100}%")
     print(f"Average True Positives: {avg_true_positive}")
+    print(f"Average True Negatives: {avg_true_negative}")
     print(f"Average False Positives: {avg_false_positive}")
     print(f"Average False Negatives: {avg_false_negative}")
-    print(f"Average True Negatives: {avg_true_negative}")
     print(f"Average Final Loss: {avg_loss}")
 
     # Plot the final loss curve for all 1000 runs
-    plt.plot(range(10), all_losses)
+    plt.plot(range(num_reps), all_losses)
     plt.xlabel("Run Index")
     plt.ylabel("Final Loss")
-    plt.title("Final Loss Across 1000 Runs")
+    plt.title(f"Final Loss Across {num_reps} Runs")
     plt.show()
-
 
 if __name__ == "__main__":
     run_logistic_regression()
