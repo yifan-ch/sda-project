@@ -1,4 +1,8 @@
-from data_model import read, write
+"""
+Generates csv tables with new variables and writes them to disk.
+"""
+
+from data_tools import read, write
 from pathlib import Path
 from env import PATHS
 
