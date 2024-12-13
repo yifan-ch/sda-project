@@ -7,8 +7,8 @@ import pandas as pd
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
-import data_tools
-from model_tools import split, predict, calculate_metrics
+import tools.data_tools as data_tools
+from tools.model_tools import split, predict, calculate_metrics
 
 # from sklearn.metrics import (
 #     mean_squared_error,
