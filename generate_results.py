@@ -15,7 +15,7 @@ from models.multiple_regression_model import (
     test_regression_sklearn,
     run_logistic_regression,
 )
-from vif_model import vif
+from models.vif_model import vif
 
 # from itertools import product
 
