@@ -133,7 +133,9 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
     return weights, bias, losses
 
 
-def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5):
+def train_and_evaluate(
+    X, y, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5
+):
     """
     Train and evaluate logistic regression on a dataset with a given random_state for data splitting.
     """
@@ -141,13 +143,17 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_train
 
     # Split the data for status 0 (64 total samples)
     df_0 = data_model.status(z_scores, 0)
-    df_0_training, df_0_test = split(df_0, frac_training)  # Divide evenly between training and testing
-    
+    df_0_training, df_0_test = split(
+        df_0, frac_training
+    )  # Divide evenly between training and testing
+
     # Split the data for status 1 (188 total samples)
     df_1 = data_model.status(z_scores, 1)
-    df_1_test = df_1.sample(n=32, random_state=random_state)  # Select 32 samples for the test set
+    df_1_test = df_1.sample(
+        n=df_0_test, random_state=random_state
+    )  # Select 32 samples for the test set
     df_1_training = df_1.drop(df_1_test.index)  # The rest go into the training set
-    
+
     # Combine the training data
     df_training = pd.concat([df_0_training, df_1_training], axis=0)
     y_training = df_training["status"].values.reshape(-1, 1)
@@ -157,7 +163,7 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_train
     df_test = pd.concat([df_0_test, df_1_test], axis=0)
     y_test = df_test["status"].values.reshape(-1, 1)
     X_test = df_test.drop(["status"], axis=1).values
-    
+
     # Split the dataset into training and test sets
     # X_train, X_test2, y_train, y_test2 = train_test_split(
     #     X, y, test_size=0.3, random_state=random_state
@@ -172,11 +178,12 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_train
     # print(f"y_train: {(y_train.shape)}")
     # print(f"y_test2: {(y_test2.shape)}")
 
-
     # print(f"\nTraining and evaluating with random_state={random_state}")
 
     # Train the model on the training set
-    weights, bias, losses = train_logistic_regression(x_training, y_training, num_epochs, learning_rate)
+    weights, bias, losses = train_logistic_regression(
+        x_training, y_training, num_epochs, learning_rate
+    )
 
     # Evaluate the model on the test set
     y_test_pred = forward_propagation(X_test, weights, bias)
@@ -186,6 +193,7 @@ def train_and_evaluate(X, y, num_epochs, learning_rate, random_state, frac_train
     accuracy, TP, FP, FN, TN = calculate_metrics(y_test, y_test_pred_labels)
 
     return accuracy, TP, FP, FN, TN, losses
+
 
 def run_logistic_regression(threshold=0.5, num_reps=100, num_epochs=1000):
     z_scores = df_z_scores()

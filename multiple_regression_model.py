@@ -61,14 +61,48 @@ def split(df, frac=0.5):
     return p1, p2
 
 
-def test_regression_sklearn(df_z_scores, frac_training=0.5, tresh=0.5):
-    # split the data into two fractions
-    df_0 = data_model.status(df_z_scores, 0)
-    # make sure we have equal amounts of subjects for patient and control
-    df_1 = data_model.status(df_z_scores, 1).sample(n=len(df_0))
+def predict(y_pred, threshold):
+    return (y_pred >= threshold).astype(int)
 
-    df_0_training, df_0_test = split(df_0, frac_training)  # status 0
-    df_1_training, df_1_test = split(df_1, frac_training)  # status 1
+
+def calculate_metrics(y_true, y_pred_labels):
+    """
+    Calculate accuracy, false positives, false negatives, true positives, and true negatives.
+    """
+
+    # True Positives
+    TP = np.sum((y_true == 1) & (y_pred_labels == 1))
+    # False Positives
+    FP = np.sum((y_true == 0) & (y_pred_labels == 1))
+    # False Negatives
+    FN = np.sum((y_true == 1) & (y_pred_labels == 0))
+    # True Negatives
+    TN = np.sum((y_true == 0) & (y_pred_labels == 0))
+
+    # Accuracy calculation
+    recall = TPR = TP / (TP + FN)
+    FPR = FP / (FP + TN)
+    TNR = TN / (TN + FP)
+    FNR = FN / (FN + TP)
+
+    accuracy = (TP + TN) / len(y_true)
+    precision = TP / (TP + FP)
+    f1 = 2 * ((precision * recall) / (precision + recall))
+
+    return accuracy, precision, recall, f1, TPR, FPR, FNR, TNR
+
+
+def test_regression_sklearn(z_scores, frac_training=0.5, thres=0.5):
+    # Split the data for status 0 (64 total samples)
+    df_0 = data_model.status(z_scores, 0)
+    df_0_training, df_0_test = split(
+        df_0, frac_training
+    )  # Divide evenly between training and testing
+
+    # Split the data for status 1 (188 total samples)
+    df_1 = data_model.status(z_scores, 1)
+    df_1_test = df_1.sample(n=len(df_0_test))  # Select 32 samples for the test set
+    df_1_training = df_1.drop(df_1_test.index)  # The rest go into the training set
 
     # training data
     df_training = pd.concat([df_0_training, df_1_training], axis=0)
@@ -83,13 +117,13 @@ def test_regression_sklearn(df_z_scores, frac_training=0.5, tresh=0.5):
     model = perform_regression_sklearn(X_training, y_training)
 
     # predict
-    y_pred = model.predict(X_test)
-    mae = mean_absolute_error(y_test, y_pred)
-    mse = mean_squared_error(y_test, y_pred)
-    rmse = root_mean_squared_error(y_test, y_pred)
-    r2 = r2_score(y_test, y_pred)
+    y_pred = predict(model.predict(X_test), thres)
+    # mae = mean_absolute_error(y_test, y_pred)
+    # mse = mean_squared_error(y_test, y_pred)
+    # rmse = root_mean_squared_error(y_test, y_pred)
+    # r2 = r2_score(y_test, y_pred)
 
-    # calc accuracy on a simple treshhold
-    accuracy = np.sum([[y_pred >= tresh] == y_test]) / len(y_test)
+    metrics = calculate_metrics(y_test, y_pred)
 
-    return mae, mse, rmse, r2, accuracy
+    # return (mae, mse, rmse, r2), accuracy
+    return metrics
