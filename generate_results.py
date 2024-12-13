@@ -10,11 +10,8 @@ import tools.data_tools as data_tools
 from tools.data_tools import df_z_scores
 from pathlib import Path
 from env import PATHS
-from models.multiple_regression_model import (
-    perform_regression_statsmodels,
-    test_regression_sklearn,
-    run_logistic_regression,
-)
+from models.multiple_regression_model import perform_regression_statsmodels, stats_mlr
+from models.logistic_regression_model import run_logistic_regression
 from models.vif_model import vif
 
 # from itertools import product
@@ -57,23 +54,6 @@ def perform_vif(df):
     # Write result to file
     with open(PATHS["results"]["vif"] / "vif.txt", "w") as f:
         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
-
-
-def stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100):
-    # mae, mse, rmse, r2, accuracy = np.mean(
-
-    # perform multiple repetitions of the test and calc the mean
-    accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = np.mean(
-        np.array(
-            [
-                np.array(test_regression_sklearn(df, frac_training, threshold))
-                for _ in range(repetitions)
-            ]
-        ),
-        axis=0,
-    )
-
-    return accuracy, precision, recall, f1, TPR, FPR, FNR, TNR
 
 
 def perform_stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100):

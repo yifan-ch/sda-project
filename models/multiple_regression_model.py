@@ -3,6 +3,7 @@ Functions for training and testing a multiple linear regression model.
 """
 
 import pandas as pd
+import numpy as np
 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.linear_model import LinearRegression
@@ -38,12 +39,7 @@ def perform_regression_sklearn(X, y):
 def perform_regression_statsmodels(X, y):
     # Add a constant term to the model (intercept)
     X_with_intercept = sm.add_constant(X)
-
-    # Fit the model
     model = sm.OLS(y, X_with_intercept).fit()
-
-    # Print the summary of the regression
-    # print(model.summary())
 
     return model
 
@@ -83,3 +79,20 @@ def test_regression_sklearn(z_scores, frac_training=0.5, thres=0.5):
 
     # return (mae, mse, rmse, r2), accuracy
     return metrics
+
+
+def stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100):
+    # mae, mse, rmse, r2, accuracy = np.mean(
+
+    # perform multiple repetitions of the test and calc the mean
+    accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = np.mean(
+        np.array(
+            [
+                np.array(test_regression_sklearn(df, frac_training, threshold))
+                for _ in range(repetitions)
+            ]
+        ),
+        axis=0,
+    )
+
+    return accuracy, precision, recall, f1, TPR, FPR, FNR, TNR
