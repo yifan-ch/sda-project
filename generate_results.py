@@ -1,15 +1,20 @@
+"""
+Performs tests for all models and writes the results to disk.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib import cm
-import data_model
-from data_model import df_z_scores
+
+# from matplotlib import cm
+import data_tools
+from data_tools import df_z_scores
 from pathlib import Path
 from env import PATHS
 from multiple_regression_model import perform_regression_statsmodels, test_regression_sklearn
-from logistic_regression import run_logistic_regression
+from logistic_regression_model import run_logistic_regression
 from vif_model import vif
 
-from itertools import product
+# from itertools import product
 
 
 def plot_histogram(df, k=30):
@@ -18,7 +23,7 @@ def plot_histogram(df, k=30):
         bins = np.linspace(df[feature].min(), df[feature].max(), k)
 
         plt.hist(
-            [data_model.status(df, 0)[feature], data_model.status(df, 1)[feature]],
+            [data_tools.status(df, 0)[feature], data_tools.status(df, 1)[feature]],
             bins=bins,
             label=["Healthy (status=0)", "Parkinson's patient (status=1)"],
             density=True,
@@ -31,7 +36,7 @@ def plot_histogram(df, k=30):
         plt.clf()
 
 
-def perform_multiple_regression(z_scores):
+def perform_mlr(z_scores):
     """Multiple linear regression"""
     # Define dependent variable (Y) and independent variables (X)
     y = z_scores["status"].values
@@ -51,7 +56,7 @@ def perform_vif(df):
         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
 
 
-def stats_multiple_regression(df, frac_training=0.5, threshold=0.5, repetitions=100):
+def stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100):
     # mae, mse, rmse, r2, accuracy = np.mean(
 
     # perform multiple repetitions of the test and calc the mean
@@ -68,8 +73,8 @@ def stats_multiple_regression(df, frac_training=0.5, threshold=0.5, repetitions=
     return accuracy, precision, recall, f1, TPR, FPR, FNR, TNR
 
 
-def perform_stats_multiple_regression(df, frac_training=0.5, threshold=0.5, repetitions=100):
-    accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = stats_multiple_regression(
+def perform_stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100):
+    accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = stats_mlr(
         df, frac_training, threshold, repetitions
     )
 
@@ -97,24 +102,24 @@ def perform_stats_multiple_regression(df, frac_training=0.5, threshold=0.5, repe
         f.write(f"FNR (type II error):  {FNR}\n")
 
 
-def plot_accuracy_over_frac(df, threshold, repetitions, resolution=20):
-    fracs = np.linspace(0.1, 0.9, resolution)
-    accs = [perform_stats_multiple_regression(df, frac, threshold, repetitions) for frac in fracs]
+# def plot_accuracy_over_frac(df, threshold, repetitions, resolution=20):
+#     fracs = np.linspace(0.1, 0.9, resolution)
+#     accs = [perform_stats_mlr(df, frac, threshold, repetitions) for frac in fracs]
 
-    plt.plot(fracs, accs, label="accuracy")
-    plt.xlabel("fraction of training data")
-    plt.ylabel("accuracy")
-    plt.title(f"Accuracy as a function of training data fraction for threshold={threshold}")
-    plt.legend()
+#     plt.plot(fracs, accs, label="accuracy")
+#     plt.xlabel("fraction of training data")
+#     plt.ylabel("accuracy")
+#     plt.title(f"Accuracy as a function of training data fraction for threshold={threshold}")
+#     plt.legend()
 
-    plt.savefig(PATHS["results"]["multiple-regression"] / "accuracy-over-fraction")
-    plt.clf()
+#     plt.savefig(PATHS["results"]["multiple-regression"] / "accuracy-over-fraction")
+#     plt.clf()
 
 
-def plot_stats_over_thres(df, frac, repetitions, resolution=20):
+def plot_mlr_over_thres(df, frac, repetitions, resolution=20):
     thresholds = np.linspace(0.1, 0.9, resolution)
     accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = zip(
-        *[stats_multiple_regression(df, frac, threshold, repetitions) for threshold in thresholds]
+        *[stats_mlr(df, frac, threshold, repetitions) for threshold in thresholds]
     )
 
     def plot(names, stats):
@@ -140,34 +145,34 @@ def plot_stats_over_thres(df, frac, repetitions, resolution=20):
     plot(("accuracy", "precision", "recall", "f1"), (accuracy, precision, recall, f1))
 
 
-def plot_stats_over_frac_thres(df, repetitions, resolution=20):
-    thresholds = fracs = np.linspace(0.1, 0.9, resolution)  # Define thresholds and fractions
-    threshold_grid, frac_grid = np.meshgrid(thresholds, fracs)  # Create a meshgrid
+# def plot_mlr_over_frac_thres(df, repetitions, resolution=20):
+#     thresholds = fracs = np.linspace(0.1, 0.9, resolution)  # Define thresholds and fractions
+#     threshold_grid, frac_grid = np.meshgrid(thresholds, fracs)  # Create a meshgrid
 
-    # Compute accuracies for each pair (threshold, fraction)
-    accuracies = np.array(
-        [stats_multiple_regression(df, f, t, repetitions) for t, f in product(thresholds, fracs)]
-    ).reshape(
-        len(fracs), len(thresholds)
-    )  # Reshape to match the grid dimensions
+#     # Compute accuracies for each pair (threshold, fraction)
+#     accuracies = np.array(
+#         [stats_mlr(df, f, t, repetitions) for t, f in product(thresholds, fracs)]
+#     ).reshape(
+#         len(fracs), len(thresholds)
+#     )  # Reshape to match the grid dimensions
 
-    # Create 3D plot
-    fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-    surf = ax.plot_surface(
-        threshold_grid, frac_grid, accuracies, cmap=cm.coolwarm, linewidth=0, antialiased=False
-    )
-    # ax.plot_wireframe(threshold_grid, frac_grid, accuracies, cmap=cm.coolwarm, rstride=1, cstride=1)
+#     # Create 3D plot
+#     fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
+#     surf = ax.plot_surface(
+#         threshold_grid, frac_grid, accuracies, cmap=cm.coolwarm, linewidth=0, antialiased=False
+#     )
+#     # ax.plot_wireframe(threshold_grid, frac_grid, accuracies, cmap=cm.coolwarm, rstride=1, cstride=1)
 
-    ax.set_xlabel("threshold")
-    ax.set_ylabel("training data fraction")
-    ax.set_zlabel("accuracy")
+#     ax.set_xlabel("threshold")
+#     ax.set_ylabel("training data fraction")
+#     ax.set_zlabel("accuracy")
 
-    ax.set_title("accuracy as a function of threshold and fraction of training data")
+#     ax.set_title("accuracy as a function of threshold and fraction of training data")
 
-    # Add color bar for reference
-    cbar = fig.colorbar(surf, shrink=0.5, aspect=10)
-    cbar.set_label("accuracy")
-    plt.show()
+#     # Add color bar for reference
+#     cbar = fig.colorbar(surf, shrink=0.5, aspect=10)
+#     cbar.set_label("accuracy")
+#     plt.show()
 
 
 if __name__ == "__main__":
@@ -178,14 +183,17 @@ if __name__ == "__main__":
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["multiple-regression"]).mkdir(parents=True, exist_ok=True)
+    Path(PATHS["results"]["logistic-regression"]).mkdir(parents=True, exist_ok=True)
+    Path(PATHS["results"]["elasticnet-regression"]).mkdir(parents=True, exist_ok=True)
+
     Path(PATHS["results"]["vif"]).mkdir(parents=True, exist_ok=True)
 
     # plot_histogram(df_mean())
     # perform_vif(df_z_scores())
-    # perform_multiple_regression(df_z_scores())
-    perform_stats_multiple_regression(df_z_scores(), fraction_training, threshold, repetitions)
+    # perform_mlr(df_z_scores())
+    perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
     # plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
 
-    plot_stats_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
+    plot_mlr_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
     # plot_accuracy_over_frac_thres(df_z_scores(), repetitions=100)
     # run_logistic_regression(threshold=0.25, num_reps=10)

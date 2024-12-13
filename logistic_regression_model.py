@@ -1,13 +1,14 @@
+"""
+Functions for training and testing a logistic regression model.
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
-import data_model
-from data_model import df_z_scores
-from pathlib import Path
-from env import PATHS
-from sklearn.model_selection import train_test_split
-from multiple_regression_model import split
+import data_tools
+from data_tools import df_z_scores
+from model_tools import split_df, predict_class, calculate_metrics
 import pandas as pd
-from elastic_net import elastic_net_model
+from elastic_net_model import elastic_net_model
 
 
 def initialize_parameters(num_features):
@@ -83,32 +84,6 @@ def update_parameters(weights, bias, dw, db, learning_rate):
     return weights, bias
 
 
-def predict_classes(y_pred, threshold=0.25):
-    """
-    Convert predicted probabilities to class labels.
-    """
-    return (y_pred >= threshold).astype(int)
-
-
-def calculate_metrics(y_true, y_pred_labels):
-    """
-    Calculate accuracy, false positives, false negatives, true positives, and true negatives.
-    """
-    # True Positives
-    TP = np.sum((y_true == 1) & (y_pred_labels == 1))
-    # False Positives
-    FP = np.sum((y_true == 0) & (y_pred_labels == 1))
-    # False Negatives
-    FN = np.sum((y_true == 1) & (y_pred_labels == 0))
-    # True Negatives
-    TN = np.sum((y_true == 0) & (y_pred_labels == 0))
-
-    # Accuracy calculation
-    accuracy = (TP + TN) / len(y_true)
-
-    return accuracy, TP, FP, FN, TN
-
-
 def train_logistic_regression(X, y, num_epochs, learning_rate):
     """
     Train logistic regression using gradient descent.
@@ -116,8 +91,8 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
     num_features = X.shape[1]
     weights, bias = initialize_parameters(num_features)
     losses = []
-    # print(f"num epochs: {num_epochs}")
-    for epoch in range(num_epochs):
+
+    for _ in range(num_epochs):
         # Forward propagation
         y_pred = forward_propagation(X, weights, bias)
 
@@ -137,18 +112,18 @@ def train_and_evaluate(
     X, y, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5
 ):
     """
-    Train and evaluate logistic regression on a dataset with a given random_state for data splitting.
+    Train and evaluate logistic regression on a dataset with a given random_state for data split_dfting.
     """
     z_scores = df_z_scores()
 
-    # Split the data for status 0 (64 total samples)
-    df_0 = data_model.status(z_scores, 0)
-    df_0_training, df_0_test = split(
+    # Split_df the data for status 0 (64 total samples)
+    df_0 = data_tools.status(z_scores, 0)
+    df_0_training, df_0_test = split_df(
         df_0, frac_training
     )  # Divide evenly between training and testing
 
-    # Split the data for status 1 (188 total samples)
-    df_1 = data_model.status(z_scores, 1)
+    # Split_df the data for status 1 (188 total samples)
+    df_1 = data_tools.status(z_scores, 1)
     df_1_test = df_1.sample(
         n=df_0_test, random_state=random_state
     )  # Select 32 samples for the test set
@@ -164,8 +139,8 @@ def train_and_evaluate(
     y_test = df_test["status"].values.reshape(-1, 1)
     X_test = df_test.drop(["status"], axis=1).values
 
-    # Split the dataset into training and test sets
-    # X_train, X_test2, y_train, y_test2 = train_test_split(
+    # Split_df the dataset into training and test sets
+    # X_train, X_test2, y_train, y_test2 = train_test_split_df(
     #     X, y, test_size=0.3, random_state=random_state
     # )
 
@@ -187,7 +162,7 @@ def train_and_evaluate(
 
     # Evaluate the model on the test set
     y_test_pred = forward_propagation(X_test, weights, bias)
-    y_test_pred_labels = predict_classes(y_test_pred, threshold=threshold)
+    y_test_pred_labels = predict_class(y_test_pred, threshold=threshold)
 
     # Calculate metrics
     accuracy, TP, FP, FN, TN = calculate_metrics(y_test, y_test_pred_labels)
@@ -204,7 +179,7 @@ def run_logistic_regression(threshold=0.5, num_reps=100, num_epochs=1000):
     print(z_scores2.shape[1])
     z_scores2["status"] = z_scores["status"]
     X = z_scores2.drop(columns=["status"]).to_numpy()
-    y = z_scores2["status"].to_numpy().reshape(-1, 1) # Reshape for matrix multiplication
+    y = z_scores2["status"].to_numpy().reshape(-1, 1)  # Reshape for matrix multiplication
 
     learning_rate = 0.001
     # List to store results
@@ -257,11 +232,12 @@ def run_logistic_regression(threshold=0.5, num_reps=100, num_epochs=1000):
     # plt.show()
     return avg_accuracy, losses
 
+
 def accuracy_per_epoch():
     iterations = iterations = np.arange(100, 4001, 100, dtype=int)
     accuracies = []
     final_losses = []
-    
+
     for num_epochs in iterations:
         accuracy, losses = run_logistic_regression(
             threshold=0.25, num_reps=300, num_epochs=num_epochs
