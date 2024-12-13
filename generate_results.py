@@ -6,13 +6,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # from matplotlib import cm
-import data_tools
-from data_tools import df_z_scores
+import tools.data_tools as data_tools
+from tools.data_tools import df_z_scores
 from pathlib import Path
 from env import PATHS
-from multiple_regression_model import perform_regression_statsmodels, test_regression_sklearn
-from logistic_regression_model import run_logistic_regression
-from vif_model import vif
+from models.multiple_regression_model import (
+    perform_regression_statsmodels,
+    test_regression_sklearn,
+    run_logistic_regression,
+)
+from models.vif_model import vif
 
 # from itertools import product
 
@@ -129,12 +132,14 @@ def plot_mlr_over_thres(df, frac, repetitions, resolution=20):
             plt.xlabel("threshold")
             plt.ylabel("value")
 
-        plt.title(f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold")
+        plt.title(
+            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold"
+        )
         plt.figtext(0, 0, f"for training_data_fraction={frac}, repetitions={repetitions}")
         plt.legend()
         plt.savefig(
             PATHS["results"]["multiple-regression"]
-            / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold"  # only keep first word
+            / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold"
         )
         plt.clf()
 

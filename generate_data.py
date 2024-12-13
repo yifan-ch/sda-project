@@ -2,7 +2,7 @@
 Generates csv tables with new variables and writes them to disk.
 """
 
-from data_tools import read, write
+from tools.data_tools import read, write
 from pathlib import Path
 from env import PATHS
 

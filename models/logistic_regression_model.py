@@ -4,11 +4,11 @@ Functions for training and testing a logistic regression model.
 
 import numpy as np
 import matplotlib.pyplot as plt
-import data_tools
-from data_tools import df_z_scores
-from model_tools import split_df, predict_class, calculate_metrics
+import tools.data_tools as data_tools
+from tools.data_tools import df_z_scores
+from tools.model_tools import split_df, predict_class, calculate_metrics
 import pandas as pd
-from elastic_net_model import elastic_net_model
+from models.elastic_net_model import elastic_net_model
 
 
 def initialize_parameters(num_features):
