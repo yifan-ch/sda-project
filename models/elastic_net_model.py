@@ -48,7 +48,7 @@ def elastic_net_model(df):
     grid_search.fit(X_train, y_train)
 
     # Best parameters
-    print("Best parameters:", grid_search.best_params_)
+    # print("Best parameters:", grid_search.best_params_)
 
     # Best model
     best_model = grid_search.best_estimator_
@@ -58,15 +58,15 @@ def elastic_net_model(df):
     mse_best = mean_squared_error(y_test, y_pred_best)
     r2_best = r2_score(y_test, y_pred_best)
 
-    print(f"Optimized Mean Squared Error: {mse_best}")
-    print(f"Optimized R-squared: {r2_best}")
+    # print(f"Optimized Mean Squared Error: {mse_best}")
+    # print(f"Optimized R-squared: {r2_best}")
 
     # Get feature importance
     coefficients = pd.Series(best_model.coef_, index=X.columns)
 
     # Identify features
     selected_features = coefficients[coefficients != 0].index
-    print("Selected features:", selected_features)
+    # print("Selected features:", selected_features)
 
     # Filter the dataset to include only selected features
     X_reduced = X[selected_features]

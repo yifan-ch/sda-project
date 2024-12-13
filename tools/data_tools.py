@@ -23,4 +23,14 @@ def display(df):
 
 
 def df_z_scores():
-    return read("parkinsons_z_scores.csv")
+    df = read("parkinsons_z_scores.csv")
+
+    # df2 = df.drop(["status"], axis=1)
+    # # to fix 0 divide
+    # df2 += 1e-9
+
+    # df2["status"] = df["status"]
+
+    # return df2
+
+    return df

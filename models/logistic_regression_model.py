@@ -132,7 +132,7 @@ def train_and_evaluate(
 def run_logistic_regression(df, threshold=0.5, num_reps=100, num_epochs=1000, frac_training=0.5):
     z_scores = df
 
-    z_scores["status"] = z_scores["status"]
+    # z_scores["status"] = z_scores["status"]
     # X = z_scores2.drop(columns=["status"]).to_numpy()
     # y = z_scores2["status"].to_numpy().reshape(-1, 1)  # Reshape for matrix multiplication
 
@@ -146,7 +146,12 @@ def run_logistic_regression(df, threshold=0.5, num_reps=100, num_epochs=1000, fr
 
     for random_state in range(num_reps):
         metric, losses = train_and_evaluate(
-            z_scores, num_epochs, learning_rate, random_state, threshold
+            z_scores,
+            num_epochs,
+            learning_rate,
+            random_state,
+            frac_training,
+            threshold,
         )
 
         metrics.append(metric)
@@ -161,9 +166,10 @@ def run_logistic_regression(df, threshold=0.5, num_reps=100, num_epochs=1000, fr
 def run_logistic_regression_elasticnet(
     df, threshold=0.5, num_reps=100, num_epochs=1000, frac_training=0.5
 ):
-    df = elastic_net_model(df)
+    z = elastic_net_model(df)
+    z["status"] = df["status"]
     return run_logistic_regression(
-        df,
+        z,
         threshold=threshold,
         num_reps=num_reps,
         num_epochs=num_epochs,
