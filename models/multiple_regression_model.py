@@ -2,14 +2,12 @@
 Functions for training and testing a multiple linear regression model.
 """
 
-import pandas as pd
 import numpy as np
 
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
-import tools.data_tools as data_tools
-from tools.model_tools import split, predict, calculate_metrics
+from tools.model_tools import split_training_test, predict_class, calculate_metrics
 
 # from sklearn.metrics import (
 #     mean_squared_error,
@@ -44,32 +42,16 @@ def perform_regression_statsmodels(X, y):
     return model
 
 
-def test_regression_sklearn(z_scores, frac_training=0.5, thres=0.5):
+def test_regression_sklearn(z_scores, random_state, frac_training=0.5, thres=0.5):
     # Split the data for status 0 (64 total samples)
-    df_0 = data_tools.status(z_scores, 0)
-    df_0_training, df_0_test = split(
-        df_0, frac_training
-    )  # Divide evenly between training and testing
-
-    # Split the data for status 1 (188 total samples)
-    df_1 = data_tools.status(z_scores, 1)
-    df_1_test = df_1.sample(n=len(df_0_test))  # Select 32 samples for the test set
-    df_1_training = df_1.drop(df_1_test.index)  # The rest go into the training set
-
-    # training data
-    df_training = pd.concat([df_0_training, df_1_training], axis=0)
-    y_training = df_training["status"].values
-    X_training = df_training.drop(["status"], axis=1).values
-
-    # test data
-    df_test = pd.concat([df_0_test, df_1_test], axis=0)
-    y_test = df_test["status"].values
-    X_test = df_test.drop(["status"], axis=1).values
+    X_training, y_training, X_test, y_test = split_training_test(
+        z_scores, random_state, frac_training
+    )
 
     model = perform_regression_sklearn(X_training, y_training)
 
     # predict
-    y_pred = predict(model.predict(X_test), thres)
+    y_pred = predict_class(model.predict(X_test), thres)
     # mae = mean_absolute_error(y_test, y_pred)
     # mse = mean_squared_error(y_test, y_pred)
     # rmse = root_mean_squared_error(y_test, y_pred)
@@ -82,17 +64,18 @@ def test_regression_sklearn(z_scores, frac_training=0.5, thres=0.5):
 
 
 def stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100):
-    # mae, mse, rmse, r2, accuracy = np.mean(
+    """
+    Perform multiple repetitions of the test and return the means
+    """
 
-    # perform multiple repetitions of the test and calc the mean
-    accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = np.mean(
+    metrics = np.mean(
         np.array(
             [
-                np.array(test_regression_sklearn(df, frac_training, threshold))
-                for _ in range(repetitions)
+                np.array(test_regression_sklearn(df, random_state, frac_training, threshold))
+                for random_state in range(repetitions)
             ]
         ),
         axis=0,
     )
 
-    return accuracy, precision, recall, f1, TPR, FPR, FNR, TNR
+    return metrics

@@ -3,11 +3,7 @@ Functions for training and testing a logistic regression model.
 """
 
 import numpy as np
-import matplotlib.pyplot as plt
-import tools.data_tools as data_tools
-from tools.data_tools import df_z_scores
-from tools.model_tools import split_df, predict_class, calculate_metrics
-import pandas as pd
+from tools.model_tools import split_training_test, predict_class, calculate_metrics
 from models.elastic_net_model import elastic_net_model
 
 
@@ -109,55 +105,18 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
 
 
 def train_and_evaluate(
-    X, y, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5
+    df, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5
 ):
     """
-    Train and evaluate logistic regression on a dataset with a given random_state for data split_dfting.
+    Train and evaluate logistic regression on a
+    dataset with a given random_state for data splitting.
     """
-    z_scores = df_z_scores()
 
-    # Split_df the data for status 0 (64 total samples)
-    df_0 = data_tools.status(z_scores, 0)
-    df_0_training, df_0_test = split_df(
-        df_0, frac_training
-    )  # Divide evenly between training and testing
-
-    # Split_df the data for status 1 (188 total samples)
-    df_1 = data_tools.status(z_scores, 1)
-    df_1_test = df_1.sample(
-        n=df_0_test, random_state=random_state
-    )  # Select 32 samples for the test set
-    df_1_training = df_1.drop(df_1_test.index)  # The rest go into the training set
-
-    # Combine the training data
-    df_training = pd.concat([df_0_training, df_1_training], axis=0)
-    y_training = df_training["status"].values.reshape(-1, 1)
-    x_training = df_training.drop(["status"], axis=1).values
-
-    # Combine the test data
-    df_test = pd.concat([df_0_test, df_1_test], axis=0)
-    y_test = df_test["status"].values.reshape(-1, 1)
-    X_test = df_test.drop(["status"], axis=1).values
-
-    # Split_df the dataset into training and test sets
-    # X_train, X_test2, y_train, y_test2 = train_test_split_df(
-    #     X, y, test_size=0.3, random_state=random_state
-    # )
-
-    # print(f"y_training: {y_training.shape}")
-    # print(f"x_training: {(x_training.shape)}")
-    # print(f"y_test: {(y_test.shape)}")
-    # print(f"x_test: {(X_test.shape)}")
-    # print(f"X_train: {(X_train.shape)}")
-    # print(f"X_test2: {(X_test2.shape)}")
-    # print(f"y_train: {(y_train.shape)}")
-    # print(f"y_test2: {(y_test2.shape)}")
-
-    # print(f"\nTraining and evaluating with random_state={random_state}")
+    X_training, y_training, X_test, y_test = split_training_test(df, random_state, frac_training)
 
     # Train the model on the training set
     weights, bias, losses = train_logistic_regression(
-        x_training, y_training, num_epochs, learning_rate
+        X_training, y_training, num_epochs, learning_rate
     )
 
     # Evaluate the model on the test set
@@ -165,106 +124,48 @@ def train_and_evaluate(
     y_test_pred_labels = predict_class(y_test_pred, threshold=threshold)
 
     # Calculate metrics
-    accuracy, TP, FP, FN, TN = calculate_metrics(y_test, y_test_pred_labels)
+    metrics = calculate_metrics(y_test, y_test_pred_labels)
 
-    return accuracy, TP, FP, FN, TN, losses
+    return metrics, losses
 
 
-def run_logistic_regression(threshold=0.5, num_reps=100, num_epochs=1000):
-    z_scores = df_z_scores()
-    # X = z_scores.drop(columns=["status"]).to_numpy()
-    # y = z_scores["status"].to_numpy().reshape(-1, 1) # Reshape for matrix multiplication
-    z_scores2 = elastic_net_model()
-    print(z_scores.shape[1])
-    print(z_scores2.shape[1])
-    z_scores2["status"] = z_scores["status"]
-    X = z_scores2.drop(columns=["status"]).to_numpy()
-    y = z_scores2["status"].to_numpy().reshape(-1, 1)  # Reshape for matrix multiplication
+def run_logistic_regression(df, threshold=0.5, num_reps=100, num_epochs=1000, frac_training=0.5):
+    z_scores = df
+
+    z_scores["status"] = z_scores["status"]
+    # X = z_scores2.drop(columns=["status"]).to_numpy()
+    # y = z_scores2["status"].to_numpy().reshape(-1, 1)  # Reshape for matrix multiplication
 
     learning_rate = 0.001
     # List to store results
-    accuracies = []
-    true_positives = []
-    false_positives = []
-    false_negatives = []
-    true_negatives = []
-    all_losses = []
 
-    # Run the training and evaluation 1000 times with different random_state values
+    # Run the training and evaluation multiple with different random_state values
+
+    metrics = []
+    # all_losses = []
+
     for random_state in range(num_reps):
-        accuracy, TP, FP, FN, TN, losses = train_and_evaluate(
-            X, y, num_epochs, learning_rate, random_state, threshold
+        metric, losses = train_and_evaluate(
+            z_scores, num_epochs, learning_rate, random_state, threshold
         )
 
-        # Store the results for this run
-        accuracies.append(accuracy)
-        true_positives.append(TP)
-        false_positives.append(FP)
-        false_negatives.append(FN)
-        true_negatives.append(TN)
-        all_losses.append(losses[-1])
+        metrics.append(metric)
+        # all_losses.append(losses[-1])
 
-    # Average metrics across all 1000 runs
-    avg_accuracy = np.mean(accuracies)
-    avg_true_positive = np.mean(true_positives)
-    avg_false_positive = np.mean(false_positives)
-    avg_false_negative = np.mean(false_negatives)
-    avg_true_negative = np.mean(true_negatives)
-    avg_loss = np.mean(all_losses)
+    # Average metrics across all runs
+    avg_metrics = np.mean(np.array(metrics), axis=0)
 
-    print(f"minimum accuracy: {min(accuracies)}")
-    print(f"maximum accuracy: {max(accuracies)}")
-
-    print(f"Averaged Metrics After {num_reps} Runs:")
-    print(f"Average Accuracy: {(round(avg_accuracy, 2))*100}%")
-    print(f"Average True Positives: {avg_true_positive}")
-    print(f"Average True Negatives: {avg_true_negative}")
-    print(f"Average False Positives: {avg_false_positive}")
-    print(f"Average False Negatives: {avg_false_negative}")
-    print(f"Average Final Loss: {avg_loss}")
-
-    # Plot the final loss curve for all 1000 runs
-    plt.plot(losses)
-    plt.xlabel("Run Index")
-    plt.ylabel("Final Loss")
-    plt.title(f"Final Loss Across {num_reps} Runs")
-    plt.savefig("results/logistic-regression/loss_function.png")
-    # plt.show()
-    return avg_accuracy, losses
+    return avg_metrics, losses
 
 
-def accuracy_per_epoch():
-    iterations = iterations = np.arange(100, 4001, 100, dtype=int)
-    accuracies = []
-    final_losses = []
-
-    for num_epochs in iterations:
-        accuracy, losses = run_logistic_regression(
-            threshold=0.25, num_reps=300, num_epochs=num_epochs
-        )
-        accuracies.append(accuracy)
-        final_losses.append(losses[-1])
-
-    fig, ax1 = plt.subplots()
-
-    # Plot accuracies on the primary y-axis
-    ax1.plot(iterations, accuracies, label="Accuracy", color="blue", marker="o")
-    ax1.set_xlabel("Epochs")
-    ax1.set_ylabel("Accuracy", color="blue")
-    ax1.tick_params(axis="y", labelcolor="blue")
-    ax1.set_title("Accuracy and Loss vs. Epochs")
-
-    # Plot losses on the secondary y-axis
-    ax2 = ax1.twinx()
-    ax2.plot(iterations, final_losses, label="Loss", color="red", marker="x")
-    ax2.set_ylabel("Loss", color="red")
-    ax2.tick_params(axis="y", labelcolor="red")
-
-    # Add legends
-    plt.savefig("results/logistic-regression/accuracy_per_epoch.png")
-    plt.show()
-
-
-if __name__ == "__main__":
-    # run_logistic_regression(threshold=0.25, num_reps=100, num_epochs=1000)
-    accuracy_per_epoch()
+def run_logistic_regression_elasticnet(
+    df, threshold=0.5, num_reps=100, num_epochs=1000, frac_training=0.5
+):
+    df = elastic_net_model(df)
+    return run_logistic_regression(
+        df,
+        threshold=threshold,
+        num_reps=num_reps,
+        num_epochs=num_epochs,
+        frac_training=frac_training,
+    )

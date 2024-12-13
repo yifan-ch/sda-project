@@ -10,12 +10,10 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import GridSearchCV
 
 
-def elastic_net_model():
-    data = pd.read_csv("data/generated/parkinsons_z_scores.csv")
-
+def elastic_net_model(df):
     # Separating features and target variable
-    X = data.drop("status", axis=1)
-    y = data["status"]
+    X = df.drop("status", axis=1)
+    y = df["status"]
 
     # Split data into training and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.35, random_state=42)
