@@ -13,6 +13,7 @@ PATHS = {
         "histogram": RESULTS_PATH / "histogram",
         "multiple-regression": RESULTS_PATH / "multiple-regression",
         "logistic-regression": RESULTS_PATH / "logistic-regression",
+        "elasticnet-logistic-regression": RESULTS_PATH / "elasticnet-logistic-regression",
         "vif": RESULTS_PATH / "vif",
     },
 }

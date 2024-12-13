@@ -286,7 +286,7 @@ def plot_logistic_regression_elasticnet_over_thres(df, frac, repetitions, resolu
         plt.figtext(0, 0, f"for training_data_fraction={frac}, repetitions={repetitions}")
         plt.legend()
         plt.savefig(
-            PATHS["results"]["logistic-regression"]
+            PATHS["results"]["elasticnet-logistic-regression"]
             / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold"
         )
         plt.clf()
@@ -345,15 +345,16 @@ if __name__ == "__main__":
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["multiple-regression"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["logistic-regression"]).mkdir(parents=True, exist_ok=True)
+    Path(PATHS["results"]["elasticnet-logistic-regression"]).mkdir(parents=True, exist_ok=True)
 
     Path(PATHS["results"]["vif"]).mkdir(parents=True, exist_ok=True)
 
     # plot_histogram(df_z_scores())
     # perform_vif(df_z_scores())
-    perform_mlr(df_z_scores())
+    # perform_mlr(df_z_scores())
 
-    perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
-    plot_mlr_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
+    # perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
+    # plot_mlr_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
     perform_logistic_regression(
         df_z_scores(),
         threshold=threshold,
