@@ -7,6 +7,7 @@ from env import PATHS
 from sklearn.model_selection import train_test_split
 from multiple_regression_model import split
 import pandas as pd
+from elastic_net import elastic_net_model
 
 
 def initialize_parameters(num_features):
@@ -115,7 +116,7 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
     num_features = X.shape[1]
     weights, bias = initialize_parameters(num_features)
     losses = []
-
+    # print(f"num epochs: {num_epochs}")
     for epoch in range(num_epochs):
         # Forward propagation
         y_pred = forward_propagation(X, weights, bias)
@@ -194,15 +195,18 @@ def train_and_evaluate(
     return accuracy, TP, FP, FN, TN, losses
 
 
-def run_logistic_regression(threshold=0.5, num_reps=100):
+def run_logistic_regression(threshold=0.5, num_reps=100, num_epochs=1000):
     z_scores = df_z_scores()
-    X = z_scores.drop(columns=["status"]).to_numpy()
-    y = z_scores["status"].to_numpy().reshape(-1, 1)  # Reshape to (m, 1) for matrix multiplication
+    # X = z_scores.drop(columns=["status"]).to_numpy()
+    # y = z_scores["status"].to_numpy().reshape(-1, 1) # Reshape for matrix multiplication
+    z_scores2 = elastic_net_model()
+    print(z_scores.shape[1])
+    print(z_scores2.shape[1])
+    z_scores2["status"] = z_scores["status"]
+    X = z_scores2.drop(columns=["status"]).to_numpy()
+    y = z_scores2["status"].to_numpy().reshape(-1, 1) # Reshape for matrix multiplication
 
-    # Hyperparameters
-    num_epochs = 1000
-    learning_rate = 0.01
-
+    learning_rate = 0.001
     # List to store results
     accuracies = []
     true_positives = []
@@ -245,12 +249,46 @@ def run_logistic_regression(threshold=0.5, num_reps=100):
     print(f"Average Final Loss: {avg_loss}")
 
     # Plot the final loss curve for all 1000 runs
-    plt.plot(range(num_reps), all_losses)
+    plt.plot(losses)
     plt.xlabel("Run Index")
     plt.ylabel("Final Loss")
     plt.title(f"Final Loss Across {num_reps} Runs")
+    plt.savefig("results/logistic-regression/loss_function.png")
+    # plt.show()
+    return avg_accuracy, losses
+
+def accuracy_per_epoch():
+    iterations = iterations = np.arange(100, 4001, 100, dtype=int)
+    accuracies = []
+    final_losses = []
+    
+    for num_epochs in iterations:
+        accuracy, losses = run_logistic_regression(
+            threshold=0.25, num_reps=300, num_epochs=num_epochs
+        )
+        accuracies.append(accuracy)
+        final_losses.append(losses[-1])
+
+    fig, ax1 = plt.subplots()
+
+    # Plot accuracies on the primary y-axis
+    ax1.plot(iterations, accuracies, label="Accuracy", color="blue", marker="o")
+    ax1.set_xlabel("Epochs")
+    ax1.set_ylabel("Accuracy", color="blue")
+    ax1.tick_params(axis="y", labelcolor="blue")
+    ax1.set_title("Accuracy and Loss vs. Epochs")
+
+    # Plot losses on the secondary y-axis
+    ax2 = ax1.twinx()
+    ax2.plot(iterations, final_losses, label="Loss", color="red", marker="x")
+    ax2.set_ylabel("Loss", color="red")
+    ax2.tick_params(axis="y", labelcolor="red")
+
+    # Add legends
+    plt.savefig("results/logistic-regression/accuracy_per_epoch.png")
     plt.show()
 
 
 if __name__ == "__main__":
-    run_logistic_regression()
+    # run_logistic_regression(threshold=0.25, num_reps=100, num_epochs=1000)
+    accuracy_per_epoch()

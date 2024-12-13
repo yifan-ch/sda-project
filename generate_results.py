@@ -185,6 +185,7 @@ if __name__ == "__main__":
     # perform_multiple_regression(df_z_scores())
     perform_stats_multiple_regression(df_z_scores(), fraction_training, threshold, repetitions)
     # plot_accuracy_over_frac(df_z_scores(), threshold=threshhold, repetitions=repetitions)
+
     plot_stats_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
     # plot_accuracy_over_frac_thres(df_z_scores(), repetitions=100)
     # run_logistic_regression(threshold=0.25, num_reps=10)
