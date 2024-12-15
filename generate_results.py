@@ -92,20 +92,6 @@ def perform_stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100, use
         f.write(f"FNR (type II error):  {FNR}\n")
 
 
-# def plot_accuracy_over_frac(df, threshold, repetitions, resolution=20):
-#     fracs = np.linspace(0.1, 0.9, resolution)
-#     accs = [perform_stats_mlr(df, frac, threshold, repetitions) for frac in fracs]
-
-#     plt.plot(fracs, accs, label="accuracy")
-#     plt.xlabel("fraction of training data")
-#     plt.ylabel("accuracy")
-#     plt.title(f"Accuracy as a function of training data fraction for threshold={threshold}")
-#     plt.legend()
-
-#     plt.savefig(PATHS["results"]["multiple-regression"] / "accuracy-over-fraction")
-#     plt.clf()
-
-
 def plot_mlr_over_thres(df, frac, repetitions, resolution=20, use_elasticnet=False):
     path = "multiple-regression"
 
@@ -353,9 +339,9 @@ if __name__ == "__main__":
 
     enable_hist = True
     enable_vif = True
-    enable_mlr = False
-    enable_logistic = False
-    enable_combined = False
+    enable_mlr = True
+    enable_logistic = True
+    enable_combined = True
 
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)

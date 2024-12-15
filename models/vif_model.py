@@ -43,7 +43,7 @@ def standardize_data(X):
 
 def check_linear_dependency(X):
     singular_values = np.linalg.svd(X, compute_uv=False)
-    print("Singular values:", singular_values)
+    # print("Singular values:", singular_values)
     if np.min(singular_values) < 1e-10:
         print("Warning: Columns in X are linearly dependent or nearly so.")
 
