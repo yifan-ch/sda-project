@@ -6,6 +6,8 @@ from .data_tools import status
 import numpy as np
 import pandas as pd
 
+np.seterr(divide="ignore", invalid="ignore")
+
 
 def split_df(df, frac=0.5, rs=None):
     """

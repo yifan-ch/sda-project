@@ -351,6 +351,12 @@ if __name__ == "__main__":
     fraction_training = 0.6
     epochs = 100
 
+    enable_hist = True
+    enable_vif = True
+    enable_mlr = False
+    enable_logistic = False
+    enable_combined = False
+
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["multiple-regression"]).mkdir(parents=True, exist_ok=True)
@@ -362,54 +368,67 @@ if __name__ == "__main__":
 
     # -- Histograms
 
-    # plot_histogram(df_z_scores())
+    if enable_hist:
+        print("Plotting histograms...")
+        plot_histogram(df_z_scores())
 
     # -- Vif
 
-    # perform_vif(df_z_scores())
+    if enable_vif:
+        print("Performing VIF test...")
+        perform_vif(df_z_scores())
 
     # -- Multiple regression
 
-    # perform_mlr(df_z_scores())
+    if enable_mlr:
+        print("Performing MLR...")
+        perform_mlr(df_z_scores())
 
-    # perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
-    # perform_stats_mlr(
-    #     df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
-    # )
+        perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
+        perform_stats_mlr(
+            df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
+        )
 
-    # plot_mlr_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
-    # plot_mlr_over_thres(
-    #     df_z_scores(), frac=fraction_training, repetitions=repetitions, use_elasticnet=True
-    # )
+        plot_mlr_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
+        plot_mlr_over_thres(
+            df_z_scores(), frac=fraction_training, repetitions=repetitions, use_elasticnet=True
+        )
 
     # -- Logistic regression
 
-    # perform_logistic_regression(
-    #     df_z_scores(),
-    #     threshold,
-    #     repetitions,
-    #     epochs,
-    #     fraction_training,
-    # )
-    # perform_logistic_regression(
-    #     df_z_scores(),
-    #     threshold,
-    #     repetitions,
-    #     epochs,
-    #     fraction_training,
-    #     use_elasticnet=True,
-    # )
+    if enable_logistic:
+        print("Performing Logistic regression...")
+        perform_logistic_regression(
+            df_z_scores(),
+            threshold,
+            repetitions,
+            epochs,
+            fraction_training,
+        )
+        perform_logistic_regression(
+            df_z_scores(),
+            threshold,
+            repetitions,
+            epochs,
+            fraction_training,
+            use_elasticnet=True,
+        )
 
-    # plot_logistic_regression_over_thres(df_z_scores(), fraction_training, repetitions, epochs)
+        plot_logistic_regression_over_thres(df_z_scores(), fraction_training, repetitions, epochs)
 
-    # plot_logistic_regression_over_thres(
-    #     df_z_scores(), fraction_training, repetitions, epochs, use_elasticnet=True
-    # )
+        plot_logistic_regression_over_thres(
+            df_z_scores(), fraction_training, repetitions, epochs, use_elasticnet=True
+        )
 
-    # plot_logistic_regression_accuracy_per_epoch(
-    #     df_z_scores(), threshold=threshold, num_reps=repetitions, frac_training=fraction_training
-    # )
+        # plot_logistic_regression_accuracy_per_epoch(
+        #     df_z_scores(),
+        #     threshold=threshold,
+        #     num_reps=repetitions,
+        #     frac_training=fraction_training,
+        # )
 
     # --- All regressions combined in one plot
 
-    plot_regressions_combined(df_z_scores(), repetitions, fraction_training, epochs)
+    if enable_combined:
+        print("Plotting combined stats for all regressions...")
+        plot_regressions_combined(df_z_scores(), repetitions, fraction_training, epochs)
