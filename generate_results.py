@@ -187,7 +187,7 @@ def perform_logistic_regression(
 
 
 def plot_logistic_regression_over_thres(
-    df, frac, repetitions, resolution=20, use_elasticnet=False
+    df, frac, repetitions, epochs, resolution=20, use_elasticnet=False
 ):
     path = "logistic-regression"
 
@@ -198,7 +198,7 @@ def plot_logistic_regression_over_thres(
     accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = zip(
         *[
             run_logistic_regression(
-                df, threshold, repetitions, frac_training=frac, use_elasticnet=use_elasticnet
+                df, threshold, repetitions, epochs, frac, use_elasticnet=use_elasticnet
             )[0]
             for threshold in thresholds
         ]
@@ -286,47 +286,56 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
 
         plt.title(f"{title} as a function of threshold")
         plt.figtext(0, 0, f"for training_data_fraction={frac_training}, repetitions={repetitions}")
-        plt.legend()
+        plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+
         plt.savefig(
-            PATHS["results"]["regressions-combined"]
-            / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold"
+            PATHS["results"]["regressions-combined"] / f"{title}-over-threshold",
+            bbox_inches="tight",
         )
         plt.clf()
 
-    data_mlr = zip(
-        *[stats_mlr(df, frac_training, threshold, repetitions) for threshold in thresholds]
+    data_mlr = tuple(
+        zip(*[stats_mlr(df, frac_training, threshold, repetitions) for threshold in thresholds])
     )
 
-    data_mlr_elasticnet = zip(
-        *[
-            stats_mlr(df, frac_training, threshold, repetitions, use_elasticnet=True)
-            for threshold in thresholds
-        ]
+    data_mlr_elasticnet = tuple(
+        zip(
+            *[
+                stats_mlr(df, frac_training, threshold, repetitions, use_elasticnet=True)
+                for threshold in thresholds
+            ]
+        )
     )
 
-    data_logistic = zip(
-        *[
-            run_logistic_regression(
-                df,
-                threshold,
-                repetitions,
-                frac_training=frac_training,
-            )[0]
-            for threshold in thresholds
-        ]
+    data_logistic = tuple(
+        zip(
+            *[
+                run_logistic_regression(
+                    df,
+                    threshold,
+                    repetitions,
+                    epochs,
+                    frac_training=frac_training,
+                )[0]
+                for threshold in thresholds
+            ]
+        )
     )
 
-    data_logistic_elasticnet = zip(
-        *[
-            run_logistic_regression(
-                df,
-                threshold,
-                repetitions,
-                frac_training=frac_training,
-                use_elasticnet=True,
-            )[0]
-            for threshold in thresholds
-        ]
+    data_logistic_elasticnet = tuple(
+        zip(
+            *[
+                run_logistic_regression(
+                    df,
+                    threshold,
+                    repetitions,
+                    epochs,
+                    frac_training=frac_training,
+                    use_elasticnet=True,
+                )[0]
+                for threshold in thresholds
+            ]
+        )
     )
 
     for i, name in enumerate(
@@ -337,7 +346,7 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
 
 
 if __name__ == "__main__":
-    repetitions = 1
+    repetitions = 100
     threshold = 0.5
     fraction_training = 0.6
     epochs = 100
@@ -377,24 +386,24 @@ if __name__ == "__main__":
 
     # perform_logistic_regression(
     #     df_z_scores(),
-    #     threshold=threshold,
-    #     reps=repetitions,
-    #     epochs=epochs,
-    #     frac_training=fraction_training,
+    #     threshold,
+    #     repetitions,
+    #     epochs,
+    #     fraction_training,
     # )
     # perform_logistic_regression(
     #     df_z_scores(),
-    #     threshold=threshold,
-    #     reps=repetitions,
-    #     epochs=epochs,
-    #     frac_training=fraction_training,
+    #     threshold,
+    #     repetitions,
+    #     epochs,
+    #     fraction_training,
     #     use_elasticnet=True,
     # )
 
-    # plot_logistic_regression_over_thres(df_z_scores(), fraction_training, repetitions)
+    # plot_logistic_regression_over_thres(df_z_scores(), fraction_training, repetitions, epochs)
 
     # plot_logistic_regression_over_thres(
-    #     df_z_scores(), fraction_training, repetitions, use_elasticnet=True
+    #     df_z_scores(), fraction_training, repetitions, epochs, use_elasticnet=True
     # )
 
     # plot_logistic_regression_accuracy_per_epoch(
