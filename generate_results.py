@@ -115,7 +115,7 @@ def plot_mlr_over_thres(df, frac, repetitions, resolution=20, use_elasticnet=Fal
 
         plt.title(
             "Metrics for Multiple linear regression"
-            + ("with Elastic Net" if use_elasticnet else "")
+            + (" with Elastic Net" if use_elasticnet else "")
         )
         plt.figtext(
             0,
@@ -204,7 +204,7 @@ def plot_logistic_regression_over_thres(
             plt.ylabel("value")
 
         plt.title(
-            "Metrics for Logistic regression" + ("with Elastic Net" if use_elasticnet else "")
+            "Metrics for Logistic regression" + (" with Elastic Net" if use_elasticnet else "")
         )
         plt.figtext(
             0,
