@@ -8,6 +8,8 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.linear_model import LinearRegression
 import statsmodels.api as sm
 from tools.model_tools import split_training_test, predict_class, calculate_metrics
+from models.elastic_net_model import elastic_net_model
+
 
 # from sklearn.metrics import (
 #     mean_squared_error,
@@ -63,10 +65,15 @@ def test_regression_sklearn(z_scores, random_state, frac_training=0.5, thres=0.5
     return metrics
 
 
-def stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100):
+def stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100, use_elasticnet=False):
     """
     Perform multiple repetitions of the test and return the means
     """
+
+    if use_elasticnet:
+        z = elastic_net_model(df)
+        z["status"] = df["status"]
+        df = z
 
     metrics = np.mean(
         np.array(
