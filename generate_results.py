@@ -332,11 +332,13 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
 
 
 if __name__ == "__main__":
+    # Parameters that can be changed
     repetitions = 100
     threshold = 0.5
     fraction_training = 0.6
     epochs = 100
 
+    # Enable or disable certain tests
     enable_hist = True
     enable_vif = True
     enable_mlr = True
@@ -413,7 +415,7 @@ if __name__ == "__main__":
         #     frac_training=fraction_training,
         # )
 
-    # --- All regressions combined in one plot
+    # -- All regressions combined in one plot
 
     if enable_combined:
         print("Plotting combined stats for all regressions...")
