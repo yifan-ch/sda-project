@@ -114,13 +114,19 @@ def plot_mlr_over_thres(df, frac, repetitions, resolution=20, use_elasticnet=Fal
             plt.ylabel("value")
 
         plt.title(
-            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold"
+            "Metrics for Multiple linear regression"
+            + ("with Elastic Net" if use_elasticnet else "")
         )
-        plt.figtext(0, 0, f"for training_data_fraction={frac}, repetitions={repetitions}")
+        plt.figtext(
+            0,
+            -0.05,
+            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\nfor training_data_fraction={frac}, repetitions={repetitions}",
+        )
         plt.legend()
         plt.savefig(
             PATHS["results"][path]
-            / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold"
+            / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold",
+            bbox_inches="tight",
         )
         plt.clf()
 
@@ -168,7 +174,7 @@ def perform_logistic_regression(
     plt.xlabel("Run Index")
     plt.ylabel("Final Loss")
     plt.title(f"Final Loss Across {reps} Runs")
-    plt.savefig(PATHS["results"][path] / "loss-function.png")
+    plt.savefig(PATHS["results"][path] / "loss-function.png", bbox_inches="tight")
     plt.clf()
 
 
@@ -198,13 +204,18 @@ def plot_logistic_regression_over_thres(
             plt.ylabel("value")
 
         plt.title(
-            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold"
+            "Metrics for Logistic regression" + ("with Elastic Net" if use_elasticnet else "")
         )
-        plt.figtext(0, 0, f"for training_data_fraction={frac}, repetitions={repetitions}")
+        plt.figtext(
+            0,
+            -0.05,
+            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\nfor training_data_fraction={frac}, repetitions={repetitions}",
+        )
         plt.legend()
         plt.savefig(
             PATHS["results"][path]
-            / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold"
+            / f"{'-'.join([name.split(' ')[0] for name in names])}-over-threshold",
+            bbox_inches="tight",
         )
         plt.clf()
 
@@ -249,7 +260,9 @@ def plot_logistic_regression_accuracy_per_epoch(
     ax2.tick_params(axis="y", labelcolor="red")
 
     # Add legends
-    plt.savefig(PATHS["results"]["logistic-regression"] / "accuracy_per_epoch.png")
+    plt.savefig(
+        PATHS["results"]["logistic-regression"] / "accuracy_per_epoch.png", bbox_inches="tight"
+    )
     plt.show()
 
 
@@ -339,8 +352,8 @@ if __name__ == "__main__":
     epochs = 100
 
     # Enable or disable certain tests
-    enable_hist = True
-    enable_vif = True
+    enable_hist = False
+    enable_vif = False
     enable_mlr = True
     enable_logistic = True
     enable_combined = True
@@ -373,14 +386,14 @@ if __name__ == "__main__":
         perform_mlr(df_z_scores())
 
         perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
-        perform_stats_mlr(
-            df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
-        )
+        # perform_stats_mlr(
+        #     df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
+        # )
 
         plot_mlr_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
-        plot_mlr_over_thres(
-            df_z_scores(), frac=fraction_training, repetitions=repetitions, use_elasticnet=True
-        )
+        # plot_mlr_over_thres(
+        #     df_z_scores(), frac=fraction_training, repetitions=repetitions, use_elasticnet=True
+        # )
 
     # -- Logistic regression
 
