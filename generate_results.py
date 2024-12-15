@@ -337,9 +337,11 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
         )
     )
 
-    for i, name in enumerate(
-        ("Accuracy", "Precision", "Recall", "F1", "TPR", "FPR", "FNR", "TNR")
-    ):
+    for i, name in enumerate(("Accuracy", "Precision", "F1", "Recall / TPR", "FPR", "FNR", "TNR")):
+        # recall and tpr are the same
+        if i == 2:
+            continue
+
         data = data_mlr[i], data_mlr_elasticnet[i], data_logistic[i], data_logistic_elasticnet[i]
         plot(data, name)
 
