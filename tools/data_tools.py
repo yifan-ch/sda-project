@@ -25,3 +25,9 @@ def df_z_scores():
     # Return z-scores as a pd dataframe
     df = read("parkinsons_z_scores.csv")
     return df
+
+
+def df_subset_z_scores():
+    df = read("parkinsons_subset_z_scores.csv")
+
+    return df

@@ -5,7 +5,7 @@ Performs tests for all models and writes the results to disk.
 import numpy as np
 import matplotlib.pyplot as plt
 import tools.data_tools as data_tools
-from tools.data_tools import df_z_scores
+from tools.data_tools import df_z_scores, df_subset_z_scores
 from pathlib import Path
 from env import PATHS
 from models.multiple_regression_model import (
@@ -48,6 +48,7 @@ def plot_histogram(df, k=30):
 #     with open(PATHS["results"]["vif"] / "vif.txt", "w") as f:
 #         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
 from models.elastic_net_model import elastic_net_model
+
 
 def perform_vif(df):
     z = elastic_net_model(df)
@@ -349,7 +350,7 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
         )
     )
 
-    for i, name in enumerate(("Accuracy", "Precision", "F1", "Recall / TPR", "FPR", "FNR", "TNR")):
+    for i, name in enumerate(("Accuracy", "Precision", "F1", "Recall(TPR)", "FPR", "FNR", "TNR")):
         # recall and tpr are the same
         if i == 2:
             continue
@@ -366,11 +367,11 @@ if __name__ == "__main__":
     epochs = 100
 
     # Enable or disable certain tests
-    enable_hist = False
-    enable_vif = True
-    enable_mlr = False
-    enable_logistic = False
-    enable_combined = False
+    enable_hist = True
+    enable_vif = False
+    enable_mlr = True
+    enable_logistic = True
+    enable_combined = True
 
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
@@ -397,17 +398,17 @@ if __name__ == "__main__":
 
     if enable_mlr:
         print("Performing MLR...")
-        perform_mlr(df_z_scores())
+        perform_mlr(df_subset_z_scores())
 
         perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
-        # perform_stats_mlr(
-        #     df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
-        # )
+        perform_stats_mlr(
+            df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
+        )
 
         plot_mlr_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
-        # plot_mlr_over_thres(
-        #     df_z_scores(), frac=fraction_training, repetitions=repetitions, use_elasticnet=True
-        # )
+        plot_mlr_over_thres(
+            df_z_scores(), frac=fraction_training, repetitions=repetitions, use_elasticnet=True
+        )
 
     # -- Logistic regression
 
