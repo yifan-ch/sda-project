@@ -5,7 +5,7 @@ Performs tests for all models and writes the results to disk.
 import numpy as np
 import matplotlib.pyplot as plt
 import tools.data_tools as data_tools
-from tools.data_tools import df_z_scores
+from tools.data_tools import df_z_scores, df_subset_z_scores
 from pathlib import Path
 from env import PATHS
 from models.multiple_regression_model import (
@@ -385,7 +385,7 @@ if __name__ == "__main__":
 
     if enable_mlr:
         print("Performing MLR...")
-        perform_mlr(df_z_scores())
+        perform_mlr(df_subset_z_scores())
 
         perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
         perform_stats_mlr(
