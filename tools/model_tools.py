@@ -6,21 +6,23 @@ from .data_tools import status
 import numpy as np
 import pandas as pd
 
-np.seterr(divide="ignore", invalid="ignore")
 
+np.seterr(divide="ignore", invalid="ignore")
 
 def split_df(df, frac=0.5, rs=None):
     """
     Randomly split data into two parts based on the fraction.
     """
-
     p1 = df.sample(frac=frac, random_state=rs)  # frac
     p2 = df.drop(p1.index)  # 1-frac
-
     return p1, p2
 
 
 def split_training_test(df, random_state, frac_training=0.5):
+    """
+    Split data into training data and test data. Divides evenly between training
+    and testing.
+    """
     # Split_df the data for status 0 (64 total samples)
     df_0 = status(df, 0)
     df_0_training, df_0_test = split_df(
@@ -58,7 +60,6 @@ def calculate_metrics(y_true, y_pred_labels):
     """
     Calculate accuracy, precision, recall, f1, and rates.
     """
-
     # True Positives
     TP = np.sum((y_true == 1) & (y_pred_labels == 1))
     # False Positives
@@ -68,7 +69,7 @@ def calculate_metrics(y_true, y_pred_labels):
     # True Negatives
     TN = np.sum((y_true == 0) & (y_pred_labels == 0))
 
-    # Accuracy calculation
+    # Accuracy calculation (R for rate)
     recall = TPR = TP / (TP + FN)
     FPR = FP / (FP + TN)
     TNR = TN / (TN + FP)

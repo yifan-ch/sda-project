@@ -42,11 +42,23 @@ def plot_histogram(df, k=30):
 # ---- VIF ----
 
 
+# def perform_vif(df):
+#     columns, vif_values = vif(df)
+#     # Write result to file
+#     with open(PATHS["results"]["vif"] / "vif.txt", "w") as f:
+#         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
+from models.elastic_net_model import elastic_net_model
+
 def perform_vif(df):
-    columns, vif_values = vif(df)
+    z = elastic_net_model(df)
+    z["status"] = df["status"]
+    z_scores = z
+    vif_df = vif(z_scores)
+    # vif_df = vif(df)
+
     # Write result to file
     with open(PATHS["results"]["vif"] / "vif.txt", "w") as f:
-        f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
+        f.writelines([f"{row['Predictor']}: {row['VIF']:.2f}\n" for _, row in vif_df.iterrows()])
 
 
 # ---- MLR ----
@@ -355,10 +367,10 @@ if __name__ == "__main__":
 
     # Enable or disable certain tests
     enable_hist = False
-    enable_vif = False
-    enable_mlr = True
-    enable_logistic = True
-    enable_combined = True
+    enable_vif = True
+    enable_mlr = False
+    enable_logistic = False
+    enable_combined = False
 
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)

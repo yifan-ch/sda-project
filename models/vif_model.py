@@ -1,4 +1,6 @@
 import numpy as np
+import pandas as pd
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 
 def calculate_correlation_matrix(X):
@@ -13,7 +15,6 @@ def calculate_correlation_matrix(X):
             std_j = np.sqrt(np.sum((X_j - mean_j) ** 2) / n)
             correlation_matrix[i, j] = covariance / (std_i * std_j)
     return correlation_matrix
-
 
 def calculate_vif(X):
     n_predictors = X.shape[1]
@@ -49,23 +50,22 @@ def check_linear_dependency(X):
 
 
 def vif(z_scores):
-    # Get predictors
-    X = z_scores.values
-
-    # Check for linear dependency
-    check_linear_dependency(X)
-
-    # Compute the correlation matrix
-    # correlation_matrix = calculate_correlation_matrix(X)
-    # print("Correlation Matrix:")
-    # print(correlation_matrix)
-
+    check_linear_dependency(z_scores.values)
     # Compute VIFs
-    vif_values = calculate_vif(X)
-    # print("VIFs:")
-    # for i, var in enumerate(z_scores.columns):
-    # print(f"{var}: {vif_values[i]:.2f}")
+    vif_values = calculate_vif(z_scores)
+    # return z_scores.values, vif_values
+    return vif_values
 
-    # return [f"{var}: {vif_values[i]:.2f}\n" for i, var in enumerate()]
+def calculate_vif(df):
+    # Ensure data is standardized
+    X = (df - df.mean()) / df.std()
+    # Add a constant column for intercept in statsmodels
+    df['intercept'] = 1
 
-    return z_scores.columns, vif_values
+    # Compute VIF for each column
+    vif = pd.DataFrame()
+    vif['Predictor'] = X.columns
+    vif['VIF'] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+    
+    # Drop the intercept VIF (not meaningful)
+    return vif[vif['Predictor'] != 'intercept']
