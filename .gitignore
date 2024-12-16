@@ -1,6 +1,6 @@
 venv
 requirements.in
 __pycache__
-results/*
+results/**
 .vscode/*
 data/generated/*
