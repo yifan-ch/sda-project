@@ -337,7 +337,7 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
         )
     )
 
-    for i, name in enumerate(("Accuracy", "Precision", "F1", "Recall / TPR", "FPR", "FNR", "TNR")):
+    for i, name in enumerate(("Accuracy", "Precision", "F1", "Recall(TPR)", "FPR", "FNR", "TNR")):
         # recall and tpr are the same
         if i == 2:
             continue
@@ -354,7 +354,7 @@ if __name__ == "__main__":
     epochs = 100
 
     # Enable or disable certain tests
-    enable_hist = False
+    enable_hist = True
     enable_vif = False
     enable_mlr = True
     enable_logistic = True
@@ -388,14 +388,14 @@ if __name__ == "__main__":
         perform_mlr(df_z_scores())
 
         perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
-        # perform_stats_mlr(
-        #     df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
-        # )
+        perform_stats_mlr(
+            df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
+        )
 
         plot_mlr_over_thres(df_z_scores(), frac=fraction_training, repetitions=repetitions)
-        # plot_mlr_over_thres(
-        #     df_z_scores(), frac=fraction_training, repetitions=repetitions, use_elasticnet=True
-        # )
+        plot_mlr_over_thres(
+            df_z_scores(), frac=fraction_training, repetitions=repetitions, use_elasticnet=True
+        )
 
     # -- Logistic regression
 
