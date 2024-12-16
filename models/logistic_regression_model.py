@@ -143,7 +143,7 @@ def run_logistic_regression(
     # X = z_scores2.drop(columns=["status"]).to_numpy()
     # y = z_scores2["status"].to_numpy().reshape(-1, 1)  # Reshape for matrix multiplication
 
-    learning_rate = 0.001
+    learning_rate = 0.01
     # List to store results
 
     # Run the training and evaluation multiple with different random_state values

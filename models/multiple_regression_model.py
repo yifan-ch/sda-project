@@ -28,17 +28,20 @@ from models.elastic_net_model import elastic_net_model
 #     vif = [variance_inflation_factor(X, i) for i in range(X.shape[1])]
 #     return vif
 
-# def perform_regression_statsmodels(X, y):
-#     # Add a constant term to the model (intercept)
-#     X_with_intercept = sm.add_constant(X)
-#     model = sm.OLS(y, X_with_intercept).fit()
 
-#     return model
+def perform_regression_statsmodels(X, y):
+    # Add a constant term to the model (intercept)
+    X_with_intercept = sm.add_constant(X)
+    model = sm.OLS(y, X_with_intercept).fit()
+
+    return model
+
 
 def perform_regression(X, y):
     model = LinearRegression()
     model.fit(X, y)
     return model
+
 
 def test_regression(z_scores, random_state, frac_training=0.5, thres=0.5):
     # Split the data for status 0 (64 total samples)
