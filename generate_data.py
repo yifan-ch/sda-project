@@ -18,6 +18,10 @@ def generate_data():
     This function reads the original data files, processes them to calculate
     mean, standard deviation, and z-scores, and writes the results to new CSV files.
     """
+
+    # Create the output directory if it doesn't exist
+    Path(PATHS["data"]["generated"]).mkdir(parents=True, exist_ok=True)
+
     # Read the original data files
     df = read("parkinsons.csv", original=True, sep=",")
     df2 = read("parkinsons_subset.csv", original=True, sep=";")
@@ -52,6 +56,4 @@ def generate_data():
 
 
 if __name__ == "__main__":
-    # Create the output directory if it doesn't exist
-    Path(PATHS["data"]["generated"]).mkdir(parents=True, exist_ok=True)
     generate_data()

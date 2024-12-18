@@ -134,14 +134,14 @@ def update_parameters(weights, bias, dw, db, learning_rate):
     return weights, bias
 
 
-def train_logistic_regression(X, y, num_epochs, learning_rate):
+def train_logistic_regression(X, y, epochs, learning_rate):
     """
     Train logistic regression using gradient descent.
 
     Parameters:
     X (numpy.ndarray): The input feature matrix.
     y (numpy.ndarray): The true labels.
-    num_epochs (int): The number of epochs for training.
+    epochs (int): The number of epochs for training.
     learning_rate (float): The learning rate for gradient descent.
 
     Returns:
@@ -152,7 +152,7 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
     weights, bias = initialize_parameters(num_features)
     losses = []
 
-    for _ in range(num_epochs):
+    for _ in range(epochs):
         # Forward propagation
         y_pred = forward_propagation(X, weights, bias)
 
@@ -169,7 +169,7 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
 
 
 def train_and_evaluate(
-    df, num_epochs, learning_rate, random_state, fraction_training=0.5, threshold=0.5
+    df, epochs, learning_rate, random_state, fraction_training=0.5, threshold=0.5
 ):
     """
     Train and evaluate logistic regression on a
@@ -177,7 +177,7 @@ def train_and_evaluate(
 
     Parameters:
     df (pandas.DataFrame): The input data frame.
-    num_epochs (int): The number of epochs for training.
+    epochs (int): The number of epochs for training.
     learning_rate (float): The learning rate for gradient descent.
     random_state (int): The random state for data splitting.
     fraction_training (float): The fraction of data to be used for training.
@@ -193,7 +193,7 @@ def train_and_evaluate(
 
     # Train the model on the training set
     weights, bias, losses = train_logistic_regression(
-        X_training, y_training, num_epochs, learning_rate
+        X_training, y_training, epochs, learning_rate
     )
 
     # Evaluate the model on the test set
@@ -210,7 +210,7 @@ def run_logistic_regression(
     df,
     threshold=0.5,
     repetitions=100,
-    num_epochs=1000,
+    epochs=1000,
     fraction_training=0.5,
     learning_rate=0.01,
     use_elasticnet=False,
@@ -222,7 +222,7 @@ def run_logistic_regression(
     df (pandas.DataFrame): The input data frame.
     threshold (float): The threshold for class prediction.
     repetitions (int): The number of repetitions for the test.
-    num_epochs (int): The number of epochs for training.
+    epochs (int): The number of epochs for training.
     fraction_training (float): The fraction of data to be used for training.
     learning_rate (float): The learning rate for gradient descent.
     use_elasticnet (bool): Whether to use elastic net regularization.
@@ -242,7 +242,7 @@ def run_logistic_regression(
     for random_state in range(repetitions):
         metric, losses = train_and_evaluate(
             df,
-            num_epochs,
+            epochs,
             learning_rate,
             random_state,
             fraction_training,

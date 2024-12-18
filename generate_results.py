@@ -18,6 +18,7 @@ from models.logistic_regression_model import (
 from models.vif_model import vif
 from models.elastic_net_model import elastic_net_model
 import argparse
+import generate_data  # Import the generate_data module
 
 
 # ---- HISTOGRAM ----
@@ -285,16 +286,16 @@ def plot_logistic_regression_accuracy_per_epoch(
     for epochs in iterations:
         metrics, losses = run_logistic_regression(
             df,
-            threshold=threshold,
-            repetitions=repetitions,
-            epochs=epochs,
-            fraction_training=fraction_training,
+            threshold,
+            repetitions,
+            epochs,
+            fraction_training,
         )
 
         accuracies.append(metrics[0])
         final_losses.append(losses[-1])
 
-    fig, ax1 = plt.subplots()
+    _, ax1 = plt.subplots()
 
     # Plot accuracies on the primary y-axis
     ax1.plot(iterations, accuracies, label="Accuracy", color="blue", marker="o")
@@ -412,21 +413,25 @@ if __name__ == "__main__":
         "--fraction_training", type=float, default=0.6, help="Fraction of training data"
     )
     parser.add_argument("--epochs", type=int, default=100, help="Number of epochs")
+    parser.add_argument("--run_hist", action="store_true", help="Enable histogram generation")
+    parser.add_argument("--run_vif", action="store_true", help="Enable VIF test")
+    parser.add_argument("--run_mlr", action="store_true", help="Enable multiple linear regression")
+    parser.add_argument("--run_logistic", action="store_true", help="Enable logistic regression")
     parser.add_argument(
-        "--enable_hist", action="store_true", default=True, help="Enable histogram generation"
-    )
-    parser.add_argument("--enable_vif", action="store_true", default=True, help="Enable VIF test")
-    parser.add_argument(
-        "--enable_mlr", action="store_true", default=True, help="Enable multiple linear regression"
-    )
-    parser.add_argument(
-        "--enable_logistic", action="store_true", default=True, help="Enable logistic regression"
+        "--run_mlr_elasticnet", action="store_true", help="Enable MLR with Elastic Net"
     )
     parser.add_argument(
-        "--enable_combined",
+        "--run_logistic_elasticnet",
         action="store_true",
-        default=True,
-        help="Enable combined regression plots",
+        help="Enable logistic regression with Elastic Net",
+    )
+    parser.add_argument(
+        "--run_combined", action="store_true", help="Enable combined regression plots"
+    )
+    parser.add_argument(
+        "--no_generate_data",
+        action="store_true",
+        help="Do not generate data before running models",
     )
 
     args = parser.parse_args()
@@ -435,11 +440,24 @@ if __name__ == "__main__":
     threshold = args.threshold
     fraction_training = args.fraction_training
     epochs = args.epochs
-    enable_hist = args.enable_hist
-    enable_vif = args.enable_vif
-    enable_mlr = args.enable_mlr
-    enable_logistic = args.enable_logistic
-    enable_combined = args.enable_combined
+    generate_data_flag = not args.no_generate_data  # Set generate_data_flag based on the argument
+
+    # Determine which tests to run
+    run_hist = args.run_hist
+    run_vif = args.run_vif
+    run_mlr = args.run_mlr
+    run_logistic = args.run_logistic
+    run_combined = args.run_combined
+    run_mlr_elasticnet = args.run_mlr_elasticnet
+    run_logistic_elasticnet = args.run_logistic_elasticnet
+
+    if generate_data_flag:
+        print("Generating data...")
+        generate_data.generate_data()
+
+    # If no enable flags are given, run all tests
+    if not any([run_hist, run_vif, run_mlr, run_logistic, run_combined]):
+        run_hist = run_vif = run_mlr = run_logistic = run_combined = True
 
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
@@ -458,11 +476,13 @@ if __name__ == "__main__":
     print(f"Threshold: {threshold}")
     print(f"Fraction training: {fraction_training}")
     print(f"Epochs: {epochs}")
-    print(f"Enable histogram: {enable_hist}")
-    print(f"Enable VIF: {enable_vif}")
-    print(f"Enable MLR: {enable_mlr}")
-    print(f"Enable Logistic Regression: {enable_logistic}")
-    print(f"Enable Combined Plots: {enable_combined}")
+    print(f"Enable histogram: {run_hist}")
+    print(f"Enable VIF: {run_vif}")
+    print(f"Enable MLR: {run_mlr}")
+    print(f"Enable Logistic Regression: {run_logistic}")
+    print(f"Enable MLR with Elastic Net: {run_mlr_elasticnet}")
+    print(f"Enable Logistic Regression with Elastic Net: {run_logistic_elasticnet}")
+    print(f"Enable Combined Plots: {run_combined}")
     print()
     print("-------------------------------------------")
     print("Generating results, this may take a while...")
@@ -471,28 +491,33 @@ if __name__ == "__main__":
 
     # -- Histograms
 
-    if enable_hist:
+    if run_hist:
         print("Plotting histograms...")
+
         plot_histogram(df_z_scores())
 
     # -- Vif
 
-    if enable_vif:
+    if run_vif:
         print("Performing VIF test...")
+
         perform_vif(df_z_scores())
 
     # -- Multiple regression
 
-    if enable_mlr:
+    if run_mlr:
         print("Performing MLR...")
-        perform_mlr(df_subset_z_scores())
 
+        perform_mlr(df_subset_z_scores())
         perform_stats_mlr(df_z_scores(), fraction_training, threshold, repetitions)
+        plot_mlr_over_thres(df_z_scores(), fraction_training, repetitions)
+
+    if run_mlr_elasticnet:
+        print("Performing MLR with Elastic Net...")
+
         perform_stats_mlr(
             df_z_scores(), fraction_training, threshold, repetitions, use_elasticnet=True
         )
-
-        plot_mlr_over_thres(df_z_scores(), fraction_training, repetitions)
         plot_mlr_over_thres(
             df_z_scores(),
             fraction_training,
@@ -502,8 +527,9 @@ if __name__ == "__main__":
 
     # -- Logistic regression
 
-    if enable_logistic:
+    if run_logistic:
         print("Performing Logistic regression...")
+
         perform_logistic_regression(
             df_z_scores(),
             threshold,
@@ -511,6 +537,17 @@ if __name__ == "__main__":
             epochs,
             fraction_training,
         )
+        plot_logistic_regression_over_thres(df_z_scores(), fraction_training, repetitions, epochs)
+        plot_logistic_regression_accuracy_per_epoch(
+            df_z_scores(),
+            threshold,
+            repetitions,
+            fraction_training,
+        )
+
+    if run_logistic_elasticnet:
+        print("Performing Logistic regression with Elastic Net...")
+
         perform_logistic_regression(
             df_z_scores(),
             threshold,
@@ -520,22 +557,13 @@ if __name__ == "__main__":
             use_elasticnet=True,
         )
 
-        plot_logistic_regression_over_thres(df_z_scores(), fraction_training, repetitions, epochs)
-
         plot_logistic_regression_over_thres(
             df_z_scores(), fraction_training, repetitions, epochs, use_elasticnet=True
         )
 
-        plot_logistic_regression_accuracy_per_epoch(
-            df_z_scores(),
-            threshold,
-            repetitions,
-            fraction_training,
-        )
-
     # -- All regressions combined in one plot
 
-    if enable_combined:
+    if run_combined:
         print("Plotting combined stats for all regressions...")
         plot_regressions_combined(df_z_scores(), repetitions, fraction_training, epochs)
 

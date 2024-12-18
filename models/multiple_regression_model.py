@@ -102,4 +102,5 @@ def stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100, use_elastic
         ),
         axis=0,
     )
+
     return metrics
