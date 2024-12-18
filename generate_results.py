@@ -17,6 +17,7 @@ from models.logistic_regression_model import (
 )
 from models.vif_model import vif
 from models.elastic_net_model import elastic_net_model
+import argparse
 
 
 # ---- HISTOGRAM ----
@@ -160,7 +161,7 @@ def perform_logistic_regression(
     df,
     threshold=0.5,
     repetitions=100,
-    num_epochs=1000,
+    epochs=1000,
     fraction_training=0.5,
     use_elasticnet=False,
 ):
@@ -170,7 +171,7 @@ def perform_logistic_regression(
         path += "-elasticnet"
 
     metrics, losses = run_logistic_regression(
-        df, threshold, repetitions, num_epochs, fraction_training, use_elasticnet=use_elasticnet
+        df, threshold, repetitions, epochs, fraction_training, use_elasticnet=use_elasticnet
     )
 
     accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = metrics
@@ -200,7 +201,7 @@ def perform_logistic_regression(
 
 
 def plot_logistic_regression_over_thres(
-    df, fraction_training, repetitions, num_epochs, resolution=20, use_elasticnet=False
+    df, fraction_training, repetitions, epochs, resolution=20, use_elasticnet=False
 ):
     path = "logistic-regression"
 
@@ -214,7 +215,7 @@ def plot_logistic_regression_over_thres(
                 df,
                 threshold,
                 repetitions,
-                num_epochs,
+                epochs,
                 fraction_training,
                 use_elasticnet=use_elasticnet,
             )[0]
@@ -259,12 +260,12 @@ def plot_logistic_regression_accuracy_per_epoch(
     accuracies = []
     final_losses = []
 
-    for num_epochs in iterations:
+    for epochs in iterations:
         metrics, losses = run_logistic_regression(
             df,
             threshold=threshold,
             repetitions=repetitions,
-            num_epochs=num_epochs,
+            epochs=epochs,
             fraction_training=fraction_training,
         )
 
@@ -290,10 +291,12 @@ def plot_logistic_regression_accuracy_per_epoch(
     plt.savefig(
         PATHS["results"]["logistic-regression"] / "accuracy_per_epoch.png", bbox_inches="tight"
     )
-    plt.show()
+    plt.clf()
 
 
-def plot_regressions_combined(df, repetitions, fraction_training, num_epochs, resolution=20):
+def plot_regressions_combined(df, repetitions, fraction_training, epochs, resolution=20):
+    """Plot all regression stats in one plot"""
+
     thresholds = np.linspace(0.1, 0.9, resolution)
 
     def plot(data, title):
@@ -344,8 +347,8 @@ def plot_regressions_combined(df, repetitions, fraction_training, num_epochs, re
                     df,
                     threshold,
                     repetitions,
-                    num_epochs,
-                    fraction_training=fraction_training,
+                    epochs,
+                    fraction_training,
                 )[0]
                 for threshold in thresholds
             ]
@@ -359,8 +362,8 @@ def plot_regressions_combined(df, repetitions, fraction_training, num_epochs, re
                     df,
                     threshold,
                     repetitions,
-                    num_epochs,
-                    fraction_training=fraction_training,
+                    epochs,
+                    fraction_training,
                     use_elasticnet=True,
                 )[0]
                 for threshold in thresholds
@@ -376,18 +379,41 @@ def plot_regressions_combined(df, repetitions, fraction_training, num_epochs, re
 
 
 if __name__ == "__main__":
-    # Parameters that can be changed
-    repetitions = 1
-    threshold = 0.5
-    fraction_training = 0.6
-    epochs = 100
+    parser = argparse.ArgumentParser(description="Generate results for various models.")
+    parser.add_argument("--repetitions", type=int, default=100, help="Number of repetitions")
+    parser.add_argument("--threshold", type=float, default=0.5, help="Threshold value")
+    parser.add_argument(
+        "--fraction_training", type=float, default=0.6, help="Fraction of training data"
+    )
+    parser.add_argument("--epochs", type=int, default=100, help="Number of epochs")
+    parser.add_argument(
+        "--enable_hist", action="store_true", default=True, help="Enable histogram generation"
+    )
+    parser.add_argument("--enable_vif", action="store_true", default=True, help="Enable VIF test")
+    parser.add_argument(
+        "--enable_mlr", action="store_true", default=True, help="Enable multiple linear regression"
+    )
+    parser.add_argument(
+        "--enable_logistic", action="store_true", default=True, help="Enable logistic regression"
+    )
+    parser.add_argument(
+        "--enable_combined",
+        action="store_true",
+        default=True,
+        help="Enable combined regression plots",
+    )
 
-    # Enable or disable certain tests
-    enable_hist = False
-    enable_vif = False
-    enable_mlr = True
-    enable_logistic = False
-    enable_combined = False
+    args = parser.parse_args()
+
+    repetitions = args.repetitions
+    threshold = args.threshold
+    fraction_training = args.fraction_training
+    epochs = args.epochs
+    enable_hist = args.enable_hist
+    enable_vif = args.enable_vif
+    enable_mlr = args.enable_mlr
+    enable_logistic = args.enable_logistic
+    enable_combined = args.enable_combined
 
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
@@ -397,6 +423,25 @@ if __name__ == "__main__":
     Path(PATHS["results"]["logistic-regression-elasticnet"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["regressions-combined"]).mkdir(parents=True, exist_ok=True)
     Path(PATHS["results"]["vif"]).mkdir(parents=True, exist_ok=True)
+
+    print("-------------------------------------------")
+    print("User parameters")
+    print("-------------------------------------------")
+    print()
+    print(f"Repetitions: {repetitions}")
+    print(f"Threshold: {threshold}")
+    print(f"Fraction training: {fraction_training}")
+    print(f"Epochs: {epochs}")
+    print(f"Enable histogram: {enable_hist}")
+    print(f"Enable VIF: {enable_vif}")
+    print(f"Enable MLR: {enable_mlr}")
+    print(f"Enable Logistic Regression: {enable_logistic}")
+    print(f"Enable Combined Plots: {enable_combined}")
+    print()
+    print("-------------------------------------------")
+    print("Generating results, this may take a while...")
+    print("-------------------------------------------")
+    print()
 
     # -- Histograms
 
@@ -467,3 +512,5 @@ if __name__ == "__main__":
     if enable_combined:
         print("Plotting combined stats for all regressions...")
         plot_regressions_combined(df_z_scores(), repetitions, fraction_training, epochs)
+
+    print("All done! See results in the results folder.")
