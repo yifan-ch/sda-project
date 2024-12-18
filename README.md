@@ -38,5 +38,5 @@ Make
 Generate the results by running `python generate_results.py`. The generated results can be found in `./results`
 Running this will also generate modified datasets from the original dataset(s), which can be found in `./data/generated`
 
-Optionally it's possible use command-line arguments to modify the tests.
+Optionally it's possible to use command-line arguments to modify the tests.
 For more info, run `python generate_results.py -h`.
