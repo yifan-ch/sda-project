@@ -17,26 +17,6 @@ def calculate_correlation_matrix(X):
     return correlation_matrix
 
 
-# def calculate_vif(X):
-#     n_predictors = X.shape[1]
-#     vif = []
-#     for i in range(n_predictors):
-#         y = X[:, i]
-#         X_other = np.delete(X, i, axis=1)
-#         try:
-#             beta = np.linalg.lstsq(X_other, y, rcond=None)[0]
-#         except np.linalg.LinAlgError:
-#             print(f"Error calculating VIF for predictor {i}. Skipping...")
-#             vif.append(np.inf)
-#             continue
-#         y_pred = X_other @ beta
-#         ss_total = np.sum((y - np.mean(y)) ** 2)
-#         ss_residual = np.sum((y - y_pred) ** 2)
-#         r_squared = 1 - (ss_residual / ss_total)
-#         vif.append(1 / (1 - r_squared) if 1 - r_squared > 0 else np.inf)
-#     return vif
-
-
 def standardize_data(X):
     mean = np.mean(X, axis=0)
     std = np.std(X, axis=0)

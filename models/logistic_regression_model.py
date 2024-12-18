@@ -105,14 +105,16 @@ def train_logistic_regression(X, y, num_epochs, learning_rate):
 
 
 def train_and_evaluate(
-    df, num_epochs, learning_rate, random_state, frac_training=0.5, threshold=0.5
+    df, num_epochs, learning_rate, random_state, fraction_training=0.5, threshold=0.5
 ):
     """
     Train and evaluate logistic regression on a
     dataset with a given random_state for data splitting.
     """
 
-    X_training, y_training, X_test, y_test = split_training_test(df, random_state, frac_training)
+    X_training, y_training, X_test, y_test = split_training_test(
+        df, random_state, fraction_training
+    )
 
     # Train the model on the training set
     weights, bias, losses = train_logistic_regression(
@@ -130,7 +132,12 @@ def train_and_evaluate(
 
 
 def run_logistic_regression(
-    df, threshold=0.5, repetitions=100, num_epochs=1000, frac_training=0.5, use_elasticnet=False
+    df,
+    threshold=0.5,
+    repetitions=100,
+    num_epochs=1000,
+    fraction_training=0.5,
+    use_elasticnet=False,
 ):
     z_scores = df
 
@@ -157,7 +164,7 @@ def run_logistic_regression(
             num_epochs,
             learning_rate,
             random_state,
-            frac_training,
+            fraction_training,
             threshold,
         )
 
