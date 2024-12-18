@@ -407,10 +407,20 @@ def plot_regressions_combined(df, repetitions, fraction_training, epochs, resolu
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate results for various models.")
-    parser.add_argument("--repetitions", type=int, default=100, help="Number of repetitions")
-    parser.add_argument("--threshold", type=float, default=0.5, help="Threshold value")
     parser.add_argument(
-        "--fraction_training", type=float, default=0.6, help="Fraction of training data"
+        "--repetitions", type=int, default=100, help="Number of repetitions (int > 0)."
+    )
+    parser.add_argument(
+        "--threshold",
+        type=float,
+        default=0.5,
+        help="Threshold value (float in range [0, 1])",
+    )
+    parser.add_argument(
+        "--fraction_training",
+        type=float,
+        default=0.6,
+        help="Fraction of training data (float in range [0, 1]).",
     )
     parser.add_argument("--epochs", type=int, default=100, help="Number of epochs")
     parser.add_argument("--run_hist", action="store_true", help="Enable histogram generation")

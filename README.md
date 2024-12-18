@@ -1,5 +1,7 @@
-# SDA Project
-SDA Project by Lynne Vogel, Mink van Maanen & Yifan Chen
+# Vocal analysis as a screening for Parkinson’s disease
+Parkinson’s disease is a neurodegenerative disease. It is related to the death of dopamine producing cells in a part of the brain called the substantia nigra. This results in too little dopamine being available in the brain, which leads to several symptoms. The most obvious are the motoric symptoms such as tremors and rigidity, but there are also cognitive symptoms, particularly later in the disease progression. One perhaps lesser known symptom of parkinson’s disease is that it can affect your voice. This is what we wanted to research. Can we, by way of measuring vocal characteristics, screen for PD to more easily and cheaply allocate care to people that might need it?
+
+By Lynne Vogel, Mink van Maanen & Yifan Chen.
 
 ## Installation
 Requirements:
@@ -34,5 +36,7 @@ Make
 ```
 
 ## Usage
-1. Generate the data by running `python3 generate_data.py`. The generated data can be found in `./data/generated/`.
-2. Generate the results by running `python3 generate_results.py`. The generated results can be found in `./results/`
+Generate the results by running `python3 generate_results.py`. The generated results can be found in `./results/`
+
+Optionally it's possible use command-line arguments to modify the tests.
+For more info, run `python3 generate_results.py -h`.
