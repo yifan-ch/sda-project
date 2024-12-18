@@ -15,10 +15,15 @@ def initialize_parameters(num_features):
     weights = np.zeros((num_features, 1))
     # Initialize bias to zero
     bias = 0.0
+
     return weights, bias
 
 
 def sigmoid(z):
+    """
+    Sigmoid function.
+    """
+
     return 1 / (1 + np.exp(-z))
 
 
@@ -28,33 +33,28 @@ def forward_propagation(X, weights, bias):
     """
     # Linear combination: z = X.w + b
     z = np.dot(X, weights) + bias
-    # z = np.clip(z, -10, 10)
-    # print(f"Linear combination {z}:")
     # Apply the sigmoid function
     predictions = sigmoid(z)
-    # print(f"predictions: {predictions}")
+
     return predictions
 
 
 def compute_loss(y_true, y_pred):
+    """
+    Compute the binary cross-entropy loss.
+    """
+
     m = y_true.shape[0]
 
     # Avoid division by zero by clipping predicted probabilities
-    # y_pred = np.clip(y_pred, 1e-10, 1 - 1e-10)
     epsilon = 1e-9
-    # Debugging the predictions and log terms
-    # print("Clipped predictions:", y_pred)
-    # print("Log terms:", y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))
 
     # Binary cross-entropy loss
     loss = -(1 / m) * np.sum(
         y_true * np.log(y_pred + epsilon) + (1 - y_true) * np.log(1 - y_pred + epsilon)
     )
-    return loss
 
-    # y1 = y_true * np.log(y_pred + epsilon)
-    # y2 = (1-y_true) * np.log(1 - y_pred + epsilon)
-    # return -np.mean(y1 + y2)
+    return loss
 
 
 def backpropagation(X, y, y_pred):
@@ -68,6 +68,7 @@ def backpropagation(X, y, y_pred):
     dw = (1 / num_samples) * np.dot(X.T, dz)
     # Compute the gradient of the loss with respect to bias (b)
     db = (1 / num_samples) * np.sum(dz)
+
     return dw, db
 
 
@@ -137,30 +138,25 @@ def run_logistic_regression(
     repetitions=100,
     num_epochs=1000,
     fraction_training=0.5,
+    learning_rate=0.01,
     use_elasticnet=False,
 ):
-    z_scores = df
+    """
+    Run logistic regression on the dataset and return the average metrics.
+    """
+    df
 
     if use_elasticnet:
-        z = elastic_net_model(z_scores)
-        z["status"] = z_scores["status"]
-        z_scores = z
-
-    # z_scores["status"] = z_scores["status"]
-    # X = z_scores2.drop(columns=["status"]).to_numpy()
-    # y = z_scores2["status"].to_numpy().reshape(-1, 1)  # Reshape for matrix multiplication
-
-    learning_rate = 0.01
-    # List to store results
-
-    # Run the training and evaluation multiple with different random_state values
+        df_elasticnet = elastic_net_model(df)
+        df_elasticnet["status"] = df["status"]
+        df = df_elasticnet
 
     metrics = []
-    # all_losses = []
 
+    # Run the training and evaluation multiple with different random_state values
     for random_state in range(repetitions):
         metric, losses = train_and_evaluate(
-            z_scores,
+            df,
             num_epochs,
             learning_rate,
             random_state,
@@ -169,7 +165,6 @@ def run_logistic_regression(
         )
 
         metrics.append(metric)
-        # all_losses.append(losses[-1])
 
     # Average metrics across all runs
     avg_metrics = np.mean(np.array(metrics), axis=0)

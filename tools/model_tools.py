@@ -9,6 +9,7 @@ import pandas as pd
 
 np.seterr(divide="ignore", invalid="ignore")
 
+
 def split_df(df, frac=0.5, rs=None):
     """
     Randomly split data into two parts based on the fraction.
