@@ -130,7 +130,7 @@ def train_and_evaluate(
 
 
 def run_logistic_regression(
-    df, threshold=0.5, num_reps=100, num_epochs=1000, frac_training=0.5, use_elasticnet=False
+    df, threshold=0.5, repetitions=100, num_epochs=1000, frac_training=0.5, use_elasticnet=False
 ):
     z_scores = df
 
@@ -151,7 +151,7 @@ def run_logistic_regression(
     metrics = []
     # all_losses = []
 
-    for random_state in range(num_reps):
+    for random_state in range(repetitions):
         metric, losses = train_and_evaluate(
             z_scores,
             num_epochs,
