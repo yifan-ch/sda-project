@@ -466,8 +466,20 @@ if __name__ == "__main__":
         generate_data.generate_data()
 
     # If no enable flags are given, run all tests
-    if not any([run_hist, run_vif, run_mlr, run_logistic, run_combined]):
-        run_hist = run_vif = run_mlr = run_logistic = run_combined = True
+    if not any(
+        [
+            run_hist,
+            run_vif,
+            run_mlr,
+            run_logistic,
+            run_combined,
+            run_mlr_elasticnet,
+            run_logistic_elasticnet,
+        ]
+    ):
+        run_hist = run_vif = run_mlr = run_logistic = run_combined = run_mlr_elasticnet = (
+            run_logistic_elasticnet
+        ) = True
 
     # if path doesnt exist, create all missing folders
     Path(PATHS["results"]["histogram"]).mkdir(parents=True, exist_ok=True)
