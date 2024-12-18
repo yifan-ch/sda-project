@@ -16,6 +16,8 @@ from models.logistic_regression_model import (
     run_logistic_regression,
 )
 from models.vif_model import vif
+from models.elastic_net_model import elastic_net_model
+
 
 # ---- HISTOGRAM ----
 
@@ -47,7 +49,6 @@ def plot_histogram(df, k=30):
 #     # Write result to file
 #     with open(PATHS["results"]["vif"] / "vif.txt", "w") as f:
 #         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
-from models.elastic_net_model import elastic_net_model
 
 
 def perform_vif(df):
@@ -105,7 +106,7 @@ def perform_stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100, use
         f.write(f"FNR (type II error):  {FNR}\n")
 
 
-def plot_mlr_over_thres(df, frac, repetitions, resolution=20, use_elasticnet=False):
+def plot_mlr_over_thres(df, frac_training, repetitions, resolution=20, use_elasticnet=False):
     path = "multiple-regression"
 
     if use_elasticnet:
@@ -114,7 +115,7 @@ def plot_mlr_over_thres(df, frac, repetitions, resolution=20, use_elasticnet=Fal
     thresholds = np.linspace(0.1, 0.9, resolution)
     accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = zip(
         *[
-            stats_mlr(df, frac, threshold, repetitions, use_elasticnet=use_elasticnet)
+            stats_mlr(df, frac_training, threshold, repetitions, use_elasticnet=use_elasticnet)
             for threshold in thresholds
         ]
     )
@@ -133,7 +134,7 @@ def plot_mlr_over_thres(df, frac, repetitions, resolution=20, use_elasticnet=Fal
         plt.figtext(
             0,
             -0.05,
-            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\nfor training_data_fraction={frac}, repetitions={repetitions}",
+            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\nfor training_data_fraction={frac_training}, repetitions={repetitions}",
         )
         plt.legend()
         plt.savefig(
@@ -154,7 +155,7 @@ def plot_mlr_over_thres(df, frac, repetitions, resolution=20, use_elasticnet=Fal
 
 
 def perform_logistic_regression(
-    df, threshold=0.5, reps=100, epochs=1000, frac_training=0.5, use_elasticnet=False
+    df, threshold=0.5, repetitions=100, num_epochs=1000, frac_training=0.5, use_elasticnet=False
 ):
     path = "logistic-regression"
 
@@ -162,14 +163,14 @@ def perform_logistic_regression(
         path += "-elasticnet"
 
     metrics, losses = run_logistic_regression(
-        df, threshold, reps, epochs, frac_training, use_elasticnet=use_elasticnet
+        df, threshold, repetitions, num_epochs, frac_training, use_elasticnet=use_elasticnet
     )
 
     accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = metrics
 
     with open(PATHS["results"][path] / f"{path}-classification.txt", "w") as f:
         f.write(
-            f"stats for threshold={threshold}, fraction_training={frac_training}, repetitions={reps}\n\n"
+            f"stats for threshold={threshold}, fraction_training={frac_training}, repetitions={repetitions}\n\n"
         )
 
         f.write(f"accuracy (frac. correct):                                 {accuracy}\n")
@@ -186,13 +187,13 @@ def perform_logistic_regression(
     plt.plot(losses)
     plt.xlabel("Run Index")
     plt.ylabel("Final Loss")
-    plt.title(f"Final Loss Across {reps} Runs")
+    plt.title(f"Final Loss Across {repetitions} Runs")
     plt.savefig(PATHS["results"][path] / "loss-function.png", bbox_inches="tight")
     plt.clf()
 
 
 def plot_logistic_regression_over_thres(
-    df, frac, repetitions, epochs, resolution=20, use_elasticnet=False
+    df, frac_training, repetitions, num_epochs, resolution=20, use_elasticnet=False
 ):
     path = "logistic-regression"
 
@@ -203,7 +204,12 @@ def plot_logistic_regression_over_thres(
     accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = zip(
         *[
             run_logistic_regression(
-                df, threshold, repetitions, epochs, frac, use_elasticnet=use_elasticnet
+                df,
+                threshold,
+                repetitions,
+                num_epochs,
+                frac_training,
+                use_elasticnet=use_elasticnet,
             )[0]
             for threshold in thresholds
         ]
@@ -222,7 +228,7 @@ def plot_logistic_regression_over_thres(
         plt.figtext(
             0,
             -0.05,
-            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\nfor training_data_fraction={frac}, repetitions={repetitions}",
+            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\nfor training_data_fraction={frac_training}, repetitions={repetitions}",
         )
         plt.legend()
         plt.savefig(
@@ -240,21 +246,22 @@ def plot_logistic_regression_over_thres(
 
 
 def plot_logistic_regression_accuracy_per_epoch(
-    df, threshold=0.25, num_reps=300, frac_training=0.5
+    df, threshold=0.25, repetitions=300, frac_training=0.5
 ):
     iterations = np.arange(100, 4001, 100, dtype=int)
     accuracies = []
     final_losses = []
 
     for num_epochs in iterations:
-        accuracy, losses = run_logistic_regression(
+        metrics, losses = run_logistic_regression(
             df,
             threshold=threshold,
-            num_reps=num_reps,
+            repetitions=repetitions,
             num_epochs=num_epochs,
             frac_training=frac_training,
         )
-        accuracies.append(accuracy)
+
+        accuracies.append(metrics[0])
         final_losses.append(losses[-1])
 
     fig, ax1 = plt.subplots()
@@ -279,7 +286,7 @@ def plot_logistic_regression_accuracy_per_epoch(
     plt.show()
 
 
-def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution=20):
+def plot_regressions_combined(df, repetitions, frac_training, num_epochs, resolution=20):
     thresholds = np.linspace(0.1, 0.9, resolution)
 
     def plot(data, title):
@@ -326,7 +333,7 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
                     df,
                     threshold,
                     repetitions,
-                    epochs,
+                    num_epochs,
                     frac_training=frac_training,
                 )[0]
                 for threshold in thresholds
@@ -341,7 +348,7 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
                     df,
                     threshold,
                     repetitions,
-                    epochs,
+                    num_epochs,
                     frac_training=frac_training,
                     use_elasticnet=True,
                 )[0]
@@ -350,11 +357,9 @@ def plot_regressions_combined(df, repetitions, frac_training, epochs, resolution
         )
     )
 
-    for i, name in enumerate(("Accuracy", "Precision", "F1", "Recall(TPR)", "FPR", "FNR", "TNR")):
-        # recall and tpr are the same
-        if i == 2:
-            continue
-
+    for i, name in enumerate(
+        ("Accuracy", "Precision", "Recall", "F1", "TPR", "FPR", "FNR", "TNR")
+    ):
         data = data_mlr[i], data_mlr_elasticnet[i], data_logistic[i], data_logistic_elasticnet[i]
         plot(data, name)
 
