@@ -1,8 +1,11 @@
+"""
+Environment variables for the project.
+"""
+
 from pathlib import Path
 
 DATA_PATH = Path("data")
 RESULTS_PATH = Path("results")
-
 
 PATHS = {
     "data": {

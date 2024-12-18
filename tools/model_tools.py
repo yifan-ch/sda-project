@@ -6,13 +6,20 @@ from .data_tools import status
 import numpy as np
 import pandas as pd
 
-
 np.seterr(divide="ignore", invalid="ignore")
 
 
 def split_df(df, frac=0.5, rs=None):
     """
     Randomly split data into two parts based on the fraction.
+
+    Parameters:
+    df (DataFrame): The DataFrame to split.
+    frac (float): The fraction of the data to include in the first split. Defaults to 0.5.
+    rs (int): The random state for reproducibility. Defaults to None.
+
+    Returns:
+    tuple: Two DataFrames resulting from the split.
     """
     p1 = df.sample(frac=frac, random_state=rs)  # frac
     p2 = df.drop(p1.index)  # 1-frac
@@ -21,21 +28,24 @@ def split_df(df, frac=0.5, rs=None):
 
 def split_training_test(df, random_state, frac_training=0.5):
     """
-    Split data into training data and test data. Divides evenly between training
-    and testing.
-    """
-    # Split_df the data for status 0 (64 total samples)
-    df_0 = status(df, 0)
-    df_0_training, df_0_test = split_df(
-        df_0, frac_training, random_state
-    )  # Divide evenly between training and testing
+    Split data into training data and test data. Divides evenly between training and testing.
 
-    # Split_df the data for status 1 (188 total samples)
+    Parameters:
+    df (DataFrame): The DataFrame to split.
+    random_state (int): The random state for reproducibility.
+    frac_training (float): The fraction of the data to use for training. Defaults to 0.5.
+
+    Returns:
+    tuple: Training and test data (X_training, y_training, X_test, y_test).
+    """
+    # Split the data for status 0
+    df_0 = status(df, 0)
+    df_0_training, df_0_test = split_df(df_0, frac_training, random_state)
+
+    # Split the data for status 1
     df_1 = status(df, 1)
-    df_1_test = df_1.sample(
-        n=len(df_0_test), random_state=random_state
-    )  # Select 32 samples for the test set
-    df_1_training = df_1.drop(df_1_test.index)  # The rest go into the training set
+    df_1_test = df_1.sample(n=len(df_0_test), random_state=random_state)
+    df_1_training = df_1.drop(df_1_test.index)
 
     # Combine the training data
     df_training = pd.concat([df_0_training, df_1_training], axis=0)
@@ -53,6 +63,13 @@ def split_training_test(df, random_state, frac_training=0.5):
 def predict_class(y_pred, threshold):
     """
     Convert predicted probabilities to class labels.
+
+    Parameters:
+    y_pred (array): The predicted probabilities.
+    threshold (float): The threshold for classifying as 1.
+
+    Returns:
+    array: The predicted class labels.
     """
     return (y_pred >= threshold).astype(int)
 
@@ -60,6 +77,13 @@ def predict_class(y_pred, threshold):
 def calculate_metrics(y_true, y_pred_labels):
     """
     Calculate accuracy, precision, recall, f1, and rates.
+
+    Parameters:
+    y_true (array): The true class labels.
+    y_pred_labels (array): The predicted class labels.
+
+    Returns:
+    tuple: Calculated metrics (accuracy, precision, recall, f1, TPR, FPR, FNR, TNR).
     """
     # True Positives
     TP = np.sum((y_true == 1) & (y_pred_labels == 1))

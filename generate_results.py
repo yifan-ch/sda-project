@@ -24,10 +24,14 @@ import argparse
 
 
 def plot_histogram(df, k=30):
-    # drop the status col in the feature list
+    """
+    Plot histograms for each feature in the dataframe, excluding the 'status' column.
+    """
+    # Drop the 'status' column from the feature list
     for feature in df.drop(["status"], axis=1).columns:
         bins = np.linspace(df[feature].min(), df[feature].max(), k)
 
+        # Plot histograms for healthy and Parkinson's patients
         plt.hist(
             [data_tools.status(df, 0)[feature], data_tools.status(df, 1)[feature]],
             bins=bins,
@@ -37,7 +41,7 @@ def plot_histogram(df, k=30):
 
         plt.title(feature)
         plt.legend()
-        # : is not allowed in filenames
+        # Replace ':' with '-' in filenames
         plt.savefig(PATHS["results"]["histogram"] / feature.replace(":", "-"))
         plt.clf()
 
@@ -45,21 +49,16 @@ def plot_histogram(df, k=30):
 # ---- VIF ----
 
 
-# def perform_vif(df):
-#     columns, vif_values = vif(df)
-#     # Write result to file
-#     with open(PATHS["results"]["vif"] / "vif.txt", "w") as f:
-#         f.writelines([f"{c}: {v:.2f}\n" for c, v in zip(columns, vif_values)])
-
-
 def perform_vif(df):
+    """
+    Perform Variance Inflation Factor (VIF) analysis and write the results to a file.
+    """
     z = elastic_net_model(df)
     z["status"] = df["status"]
     z_scores = z
     vif_df = vif(z_scores)
-    # vif_df = vif(df)
 
-    # Write result to file
+    # Write VIF results to file
     with open(PATHS["results"]["vif"] / "vif.txt", "w") as f:
         f.writelines([f"{row['Predictor']}: {row['VIF']:.2f}\n" for _, row in vif_df.iterrows()])
 
@@ -68,7 +67,9 @@ def perform_vif(df):
 
 
 def perform_mlr(z_scores):
-    """Multiple linear regression"""
+    """
+    Perform multiple linear regression and write the model summary to a file.
+    """
 
     # Define dependent variable (Y) and independent variables (X)
     y = z_scores["status"].values
@@ -76,7 +77,7 @@ def perform_mlr(z_scores):
 
     model = perform_regression_statsmodels(X, y)
 
-    # Write result to file
+    # Write model summary to file
     with open(PATHS["results"]["multiple-regression"] / "multiple-regression.txt", "w") as f:
         print(model.summary(), file=f)
 
@@ -84,6 +85,9 @@ def perform_mlr(z_scores):
 def perform_stats_mlr(
     df, fraction_training=0.5, threshold=0.5, repetitions=100, use_elasticnet=False
 ):
+    """
+    Perform statistical analysis for multiple linear regression and write the results to a file.
+    """
     path = "multiple-regression"
 
     if use_elasticnet:
@@ -93,9 +97,11 @@ def perform_stats_mlr(
         df, fraction_training, threshold, repetitions, use_elasticnet=use_elasticnet
     )
 
+    # Write classification metrics to file
     with open(PATHS["results"][path] / f"{path}-classification.txt", "w") as f:
         f.write(
-            f"stats for threshold={threshold}, fraction_training={fraction_training}, repetitions={repetitions}\n\n"
+            f"stats for threshold={threshold}, fraction_training={fraction_training}, "
+            f"repetitions={repetitions}\n\n"
         )
 
         f.write(f"accuracy (frac. correct):                                 {accuracy}\n")
@@ -110,6 +116,9 @@ def perform_stats_mlr(
 
 
 def plot_mlr_over_thres(df, fraction_training, repetitions, resolution=20, use_elasticnet=False):
+    """
+    Plot multiple linear regression metrics over a range of thresholds.
+    """
     path = "multiple-regression"
 
     if use_elasticnet:
@@ -137,7 +146,8 @@ def plot_mlr_over_thres(df, fraction_training, repetitions, resolution=20, use_e
         plt.figtext(
             0,
             -0.05,
-            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\nfor training_data_fraction={fraction_training}, repetitions={repetitions}",
+            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\n"
+            f"for training_data_fraction={fraction_training}, repetitions={repetitions}",
         )
         plt.legend()
         plt.savefig(
@@ -147,10 +157,10 @@ def plot_mlr_over_thres(df, fraction_training, repetitions, resolution=20, use_e
         )
         plt.clf()
 
+    # Plot different combinations of metrics
     plot(("accuracy", "TNR", "FNR"), (accuracy, TNR, FNR))
     plot(("accuracy", "TPR", "FPR"), (accuracy, TPR, FPR))
     plot(("accuracy", "FPR (type I error)", "FNR (type II error)"), (accuracy, FPR, FNR))
-
     plot(("accuracy", "precision", "recall", "f1"), (accuracy, precision, recall, f1))
 
 
@@ -165,6 +175,9 @@ def perform_logistic_regression(
     fraction_training=0.5,
     use_elasticnet=False,
 ):
+    """
+    Perform logistic regression and write the results to a file.
+    """
     path = "logistic-regression"
 
     if use_elasticnet:
@@ -176,9 +189,11 @@ def perform_logistic_regression(
 
     accuracy, precision, recall, f1, TPR, FPR, FNR, TNR = metrics
 
+    # Write classification metrics to file
     with open(PATHS["results"][path] / f"{path}-classification.txt", "w") as f:
         f.write(
-            f"stats for threshold={threshold}, fraction_training={fraction_training}, repetitions={repetitions}\n\n"
+            f"stats for threshold={threshold}, fraction_training={fraction_training}, "
+            f"repetitions={repetitions}\n\n"
         )
 
         f.write(f"accuracy (frac. correct):                                 {accuracy}\n")
@@ -203,6 +218,9 @@ def perform_logistic_regression(
 def plot_logistic_regression_over_thres(
     df, fraction_training, repetitions, epochs, resolution=20, use_elasticnet=False
 ):
+    """
+    Plot logistic regression metrics over a range of thresholds.
+    """
     path = "logistic-regression"
 
     if use_elasticnet:
@@ -236,7 +254,8 @@ def plot_logistic_regression_over_thres(
         plt.figtext(
             0,
             -0.05,
-            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\nfor training_data_fraction={fraction_training}, repetitions={repetitions}",
+            f"{', '.join([name.split(' ')[0] for name in names])} as a function of threshold\n"
+            f"for training_data_fraction={fraction_training}, repetitions={repetitions}",
         )
         plt.legend()
         plt.savefig(
@@ -246,16 +265,19 @@ def plot_logistic_regression_over_thres(
         )
         plt.clf()
 
+    # Plot different combinations of metrics
     plot(("accuracy", "TNR", "FNR"), (accuracy, TNR, FNR))
     plot(("accuracy", "TPR", "FPR"), (accuracy, TPR, FPR))
     plot(("accuracy", "FPR (type I error)", "FNR (type II error)"), (accuracy, FPR, FNR))
-
     plot(("accuracy", "precision", "recall", "f1"), (accuracy, precision, recall, f1))
 
 
 def plot_logistic_regression_accuracy_per_epoch(
     df, threshold=0.25, repetitions=300, fraction_training=0.5
 ):
+    """
+    Plot logistic regression accuracy and loss over a range of epochs.
+    """
     iterations = np.arange(100, 4001, 100, dtype=int)
     accuracies = []
     final_losses = []
@@ -287,7 +309,7 @@ def plot_logistic_regression_accuracy_per_epoch(
     ax2.set_ylabel("Loss", color="red")
     ax2.tick_params(axis="y", labelcolor="red")
 
-    # Add legends
+    # Save the plot to a file
     plt.savefig(
         PATHS["results"]["logistic-regression"] / "accuracy_per_epoch.png", bbox_inches="tight"
     )
@@ -295,8 +317,9 @@ def plot_logistic_regression_accuracy_per_epoch(
 
 
 def plot_regressions_combined(df, repetitions, fraction_training, epochs, resolution=20):
-    """Plot all regression stats in one plot"""
-
+    """
+    Plot combined regression metrics for multiple linear regression and logistic regression.
+    """
     thresholds = np.linspace(0.1, 0.9, resolution)
 
     def plot(data, title):
@@ -319,12 +342,14 @@ def plot_regressions_combined(df, repetitions, fraction_training, epochs, resolu
         )
         plt.legend(loc="center left", bbox_to_anchor=(1, 0.5))
 
+        # Save the plot to a file
         plt.savefig(
             PATHS["results"]["regressions-combined"] / f"{title}-over-threshold",
             bbox_inches="tight",
         )
         plt.clf()
 
+    # Collect data for each regression type
     data_mlr = tuple(
         zip(
             *[stats_mlr(df, fraction_training, threshold, repetitions) for threshold in thresholds]
@@ -371,6 +396,7 @@ def plot_regressions_combined(df, repetitions, fraction_training, epochs, resolu
         )
     )
 
+    # Plot each metric for all regression types
     for i, name in enumerate(
         ("Accuracy", "Precision", "Recall", "F1", "TPR", "FPR", "FNR", "TNR")
     ):

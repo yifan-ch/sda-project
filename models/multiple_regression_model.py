@@ -1,5 +1,8 @@
 """
 Functions for training and testing a multiple linear regression model.
+
+This module provides functions to perform multiple linear regression using
+both statsmodels and scikit-learn, and to evaluate the model performance.
 """
 
 import numpy as np
@@ -12,6 +15,13 @@ from models.elastic_net_model import elastic_net_model
 def perform_regression_statsmodels(X, y):
     """
     Perform multiple linear regression using statsmodels.
+
+    Parameters:
+    X (numpy.ndarray): The input feature matrix.
+    y (numpy.ndarray): The target variable.
+
+    Returns:
+    statsmodels.regression.linear_model.RegressionResultsWrapper: The fitted model.
     """
 
     # Add a constant term to the model (intercept)
@@ -24,6 +34,13 @@ def perform_regression_statsmodels(X, y):
 def perform_regression(X, y):
     """
     Perform multiple linear regression using scikit-learn.
+
+    Parameters:
+    X (numpy.ndarray): The input feature matrix.
+    y (numpy.ndarray): The target variable.
+
+    Returns:
+    sklearn.linear_model.LinearRegression: The fitted model.
     """
 
     model = LinearRegression()
@@ -34,6 +51,15 @@ def perform_regression(X, y):
 def test_regression(df, random_state, frac_training=0.5, threshold=0.5):
     """
     Train and test a multiple linear regression model.
+
+    Parameters:
+    df (pandas.DataFrame): The input data frame.
+    random_state (int): The random state for data splitting.
+    frac_training (float): The fraction of data to be used for training.
+    threshold (float): The threshold for class prediction.
+
+    Returns:
+    dict: A dictionary containing evaluation metrics.
     """
 
     X_training, y_training, X_test, y_test = split_training_test(df, random_state, frac_training)
@@ -47,7 +73,17 @@ def test_regression(df, random_state, frac_training=0.5, threshold=0.5):
 
 def stats_mlr(df, frac_training=0.5, threshold=0.5, repetitions=100, use_elasticnet=False):
     """
-    Perform multiple repetitions of the test and return the means
+    Perform multiple repetitions of the test and return the means.
+
+    Parameters:
+    df (pandas.DataFrame): The input data frame.
+    frac_training (float): The fraction of data to be used for training.
+    threshold (float): The threshold for class prediction.
+    repetitions (int): The number of repetitions for the test.
+    use_elasticnet (bool): Whether to use elastic net regularization.
+
+    Returns:
+    numpy.ndarray: The mean evaluation metrics across repetitions.
     """
 
     # Perform elastic net if wanted

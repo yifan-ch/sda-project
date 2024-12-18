@@ -1,5 +1,8 @@
 """
 VIF model for checking multicollinearity in the data.
+
+This module provides functions to calculate the Variance Inflation Factor (VIF)
+for each predictor in a dataset, which helps in detecting multicollinearity.
 """
 
 import numpy as np
@@ -10,6 +13,12 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 def calculate_correlation_matrix(X):
     """
     Calculate the correlation matrix of the data.
+
+    Parameters:
+    X (numpy.ndarray): The input data matrix.
+
+    Returns:
+    numpy.ndarray: The correlation matrix.
     """
 
     n, m = X.shape
@@ -28,6 +37,12 @@ def calculate_correlation_matrix(X):
 def standardize_data(X):
     """
     Standardize the data to have mean 0 and standard deviation 1.
+
+    Parameters:
+    X (numpy.ndarray): The input data matrix.
+
+    Returns:
+    numpy.ndarray: The standardized data matrix.
     """
 
     mean = np.mean(X, axis=0)
@@ -38,6 +53,11 @@ def standardize_data(X):
 def check_linear_dependency(X):
     """
     Check for linear dependency in the data.
+
+    Parameters:
+    X (numpy.ndarray): The input data matrix.
+
+    Prints a warning if columns in X are linearly dependent or nearly so.
     """
 
     singular_values = np.linalg.svd(X, compute_uv=False)
@@ -49,6 +69,12 @@ def vif(df):
     """
     Calculate the variance inflation factor for each predictor.
     Also check linear dependency in the data.
+
+    Parameters:
+    df (pandas.DataFrame): The input data frame.
+
+    Returns:
+    pandas.DataFrame: DataFrame containing VIF values for each predictor.
     """
 
     check_linear_dependency(df.values)
@@ -59,6 +85,12 @@ def vif(df):
 def calculate_vif(df):
     """
     Calculate the variance inflation factor for each predictor.
+
+    Parameters:
+    df (pandas.DataFrame): The input data frame.
+
+    Returns:
+    pandas.DataFrame: DataFrame containing VIF values for each predictor.
     """
 
     # Ensure data is standardized

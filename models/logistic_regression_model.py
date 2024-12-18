@@ -1,5 +1,8 @@
 """
 Functions for training and testing a logistic regression model.
+
+This module provides functions to train a logistic regression model using
+gradient descent, and to evaluate its performance.
 """
 
 import numpy as np
@@ -10,7 +13,14 @@ from models.elastic_net_model import elastic_net_model
 def initialize_parameters(num_features):
     """
     Initialize weights and bias for logistic regression.
+
+    Parameters:
+    num_features (int): The number of features in the input data.
+
+    Returns:
+    tuple: A tuple containing initialized weights and bias.
     """
+
     # Initialize weights to zeros
     weights = np.zeros((num_features, 1))
     # Initialize bias to zero
@@ -22,6 +32,12 @@ def initialize_parameters(num_features):
 def sigmoid(z):
     """
     Sigmoid function.
+
+    Parameters:
+    z (numpy.ndarray): The input value or array.
+
+    Returns:
+    numpy.ndarray: The sigmoid of the input.
     """
 
     return 1 / (1 + np.exp(-z))
@@ -30,7 +46,16 @@ def sigmoid(z):
 def forward_propagation(X, weights, bias):
     """
     Calculate the predicted probabilities using logistic regression.
+
+    Parameters:
+    X (numpy.ndarray): The input feature matrix.
+    weights (numpy.ndarray): The weights of the model.
+    bias (float): The bias of the model.
+
+    Returns:
+    numpy.ndarray: The predicted probabilities.
     """
+
     # Linear combination: z = X.w + b
     z = np.dot(X, weights) + bias
     # Apply the sigmoid function
@@ -42,6 +67,13 @@ def forward_propagation(X, weights, bias):
 def compute_loss(y_true, y_pred):
     """
     Compute the binary cross-entropy loss.
+
+    Parameters:
+    y_true (numpy.ndarray): The true labels.
+    y_pred (numpy.ndarray): The predicted probabilities.
+
+    Returns:
+    float: The binary cross-entropy loss.
     """
 
     m = y_true.shape[0]
@@ -60,7 +92,16 @@ def compute_loss(y_true, y_pred):
 def backpropagation(X, y, y_pred):
     """
     Perform backpropagation to compute gradients of the loss.
+
+    Parameters:
+    X (numpy.ndarray): The input feature matrix.
+    y (numpy.ndarray): The true labels.
+    y_pred (numpy.ndarray): The predicted probabilities.
+
+    Returns:
+    tuple: Gradients of the loss with respect to weights and bias.
     """
+
     num_samples = X.shape[0]
     # Derivative of sigmoid and bce X.T
     dz = y_pred - y
@@ -75,16 +116,38 @@ def backpropagation(X, y, y_pred):
 def update_parameters(weights, bias, dw, db, learning_rate):
     """
     Update weights and bias using gradient descent.
+
+    Parameters:
+    weights (numpy.ndarray): The weights of the model.
+    bias (float): The bias of the model.
+    dw (numpy.ndarray): The gradient of the loss with respect to weights.
+    db (float): The gradient of the loss with respect to bias.
+    learning_rate (float): The learning rate for gradient descent.
+
+    Returns:
+    tuple: Updated weights and bias.
     """
+
     weights -= learning_rate * dw
     bias -= learning_rate * db
+
     return weights, bias
 
 
 def train_logistic_regression(X, y, num_epochs, learning_rate):
     """
     Train logistic regression using gradient descent.
+
+    Parameters:
+    X (numpy.ndarray): The input feature matrix.
+    y (numpy.ndarray): The true labels.
+    num_epochs (int): The number of epochs for training.
+    learning_rate (float): The learning rate for gradient descent.
+
+    Returns:
+    tuple: The trained weights, bias, and list of losses.
     """
+
     num_features = X.shape[1]
     weights, bias = initialize_parameters(num_features)
     losses = []
@@ -111,6 +174,17 @@ def train_and_evaluate(
     """
     Train and evaluate logistic regression on a
     dataset with a given random_state for data splitting.
+
+    Parameters:
+    df (pandas.DataFrame): The input data frame.
+    num_epochs (int): The number of epochs for training.
+    learning_rate (float): The learning rate for gradient descent.
+    random_state (int): The random state for data splitting.
+    fraction_training (float): The fraction of data to be used for training.
+    threshold (float): The threshold for class prediction.
+
+    Returns:
+    tuple: Evaluation metrics and list of losses.
     """
 
     X_training, y_training, X_test, y_test = split_training_test(
@@ -143,8 +217,19 @@ def run_logistic_regression(
 ):
     """
     Run logistic regression on the dataset and return the average metrics.
+
+    Parameters:
+    df (pandas.DataFrame): The input data frame.
+    threshold (float): The threshold for class prediction.
+    repetitions (int): The number of repetitions for the test.
+    num_epochs (int): The number of epochs for training.
+    fraction_training (float): The fraction of data to be used for training.
+    learning_rate (float): The learning rate for gradient descent.
+    use_elasticnet (bool): Whether to use elastic net regularization.
+
+    Returns:
+    tuple: The average evaluation metrics and list of losses.
     """
-    df
 
     if use_elasticnet:
         df_elasticnet = elastic_net_model(df)
