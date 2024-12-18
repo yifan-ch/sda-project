@@ -1,6 +1,4 @@
 """
-Functions for training and testing a multiple linear regression model.
-
 This module provides functions to perform multiple linear regression using
 both statsmodels and scikit-learn, and to evaluate the model performance.
 """

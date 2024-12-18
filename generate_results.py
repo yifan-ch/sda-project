@@ -577,4 +577,4 @@ if __name__ == "__main__":
         print("Plotting combined stats for all regressions...")
         plot_regressions_combined(df_z_scores(), repetitions, fraction_training, epochs)
 
-    print("All done! See results in the results folder.")
+    print("All done! See results in ./results.")

@@ -1,8 +1,6 @@
 """
-Functions for training and testing a logistic regression model.
-
-This module provides functions to train a logistic regression model using
-gradient descent, and to evaluate its performance.
+This module provides functions to train a logistic regression model,
+and to evaluate its performance.
 """
 
 import numpy as np

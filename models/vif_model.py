@@ -1,6 +1,4 @@
 """
-VIF model for checking multicollinearity in the data.
-
 This module provides functions to calculate the Variance Inflation Factor (VIF)
 for each predictor in a dataset, which helps in detecting multicollinearity.
 """

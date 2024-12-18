@@ -15,7 +15,7 @@ python3 -m venv venv
 Activate it using the appropriate command for your platform:
 ```bash
 bash venv/bin/activate      # linux
-./venv/Scripts/activate.bat   # windows
+./venv/Scripts/activate.bat # windows
 source venv/bin/activate    # mac
 ```
 
@@ -32,11 +32,11 @@ pip install pipreqs
 
 # compile
 Make
-
 ```
 
 ## Usage
-Generate the results by running `python3 generate_results.py`. The generated results can be found in `./results/`
+Generate the results by running `python generate_results.py`. The generated results can be found in `./results`
+Running this will also generate modified datasets from the original dataset(s), which can be found in `./data/generated`
 
 Optionally it's possible use command-line arguments to modify the tests.
-For more info, run `python3 generate_results.py -h`.
+For more info, run `python generate_results.py -h`.

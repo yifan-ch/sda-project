@@ -1,5 +1,5 @@
 """
-This module contains functions for training and testing an ElasticNet regression model.
+This module contains functions for training an ElasticNet regression model.
 """
 
 import pandas as pd
