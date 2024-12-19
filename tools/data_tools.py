@@ -1,3 +1,7 @@
+"""Functions to used for data: reading data, writing data into csv file, filtering by status,
+calculating z-scores and displaying data."""
+
+
 import pandas as pd
 from pathlib import Path
 from env import PATHS
