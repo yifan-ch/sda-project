@@ -1,5 +1,6 @@
 """
-Functions that are used by multiple models.
+Functions that are used by multiple models: splitting data, predicting classes 
+and calculating metrics
 """
 
 from .data_tools import status
